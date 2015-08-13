@@ -1,0 +1,25 @@
+{
+  "name": "taina-desktop",
+  "version": "1.0.0",
+  "description": "Taina desktop app",
+  "private": true,
+  "author": "Ilya Siganov <ilya.blan4@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blan4/Taina.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blan4/Taina/issues"
+  },
+  "main": "scripts/browser/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "bluebird": "^2.9.34",
+    "lodash": "^3.10.1",
+    "pouchdb": "^4.0.0"
+  }
+}
