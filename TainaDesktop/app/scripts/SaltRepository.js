@@ -2,15 +2,15 @@
 
 window.SaltRepository = (function() {
   const Promise = require('bluebird');
-  let module = {};
+  const module = {};
 
   module.create = function(cryptoService) {
     if (!cryptoService) {
       throw Error('missing cryptoService');
     }
 
-    let SaltRepository = {};
-    let storage = localStorage;
+    const SaltRepository = {};
+    const storage = localStorage;
     const SALT_KEY = '_taina_salt';
 
     SaltRepository.findOrCreate = function() {
@@ -24,10 +24,10 @@ window.SaltRepository = (function() {
       } else {
         return Promise.resolve(salt);
       }
-    }
+    };
 
     return SaltRepository;
-  }
+  };
 
   return module;
 })();

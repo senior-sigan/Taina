@@ -2,14 +2,14 @@
 
 window.MasterKeyRepository = (function() {
   const Promise = require('bluebird');
-  let module = {};
+  const module = {};
 
   module.create = function(saltRepository, cryptoService) {
     if (!saltRepository) throw Error('mising saltRepository dependency');
     if (!cryptoService) throw Error('missing cryptoService');
 
-    let MasterKeyRepository = {};
-    let storage = sessionStorage;
+    const MasterKeyRepository = {};
+    const storage = sessionStorage;
     const MASTER_KEY_KEY = '_taina_master-key';
 
     MasterKeyRepository.getKey = function() {
@@ -31,7 +31,7 @@ window.MasterKeyRepository = (function() {
     };
 
     return MasterKeyRepository;
-  }
+  };
 
   return module;
 })();

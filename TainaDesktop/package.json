@@ -12,7 +12,11 @@
   "bugs": {
     "url": "https://github.com/blan4/Taina/issues"
   },
+  "scripts": {
+    "start": "electron app"
+  },
   "devDependencies": {
-    "electron-prebuilt": "^0.30.4"
+    "electron-prebuilt": "^0.30.4",
+    "jshint": "^2.8.0"
   }
 }
