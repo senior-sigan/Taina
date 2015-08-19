@@ -1,17 +1,25 @@
 'use strict';
 
-let cryptoService = CryptoService.create();
-let saltRepository = SaltRepository.create(cryptoService);
-let masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoService);
+const winston = require('winston');
+const cryptoService = CryptoService.create();
+const saltRepository = SaltRepository.create(cryptoService);
+const masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoService);
+const db = DB.create();
 
 let key = null;
-
-masterKeyRepository.saveKey('qwerty').then(function(_key) {
-  key = _key;
-  return cryptoService.encrypt('Hello World!!', key);
+masterKeyRepository.getKey().then(function(key) {
+  winston.info('Key loaded', key);
+  return key;
+}).catch(function() {
+  winston.info('Creating new key');
+  return masterKeyRepository.saveKey('qwerty').then(function(_key) {
+    key = _key;
+    winston.info('New key created', key);
+    return cryptoService.encrypt('Hello World!!', key);
+  });
 }).then(function(dataWithIV) {
-  console.log(dataWithIV);
+  winston.info(dataWithIV);
   return cryptoService.decrypt(dataWithIV.data, key, dataWithIV.iv);
 }).then(function(openText) {
-  console.log(openText);
+  winston.info(openText);
 });

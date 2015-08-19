@@ -14,7 +14,11 @@ window.MasterKeyRepository = (function() {
 
     MasterKeyRepository.getKey = function() {
       let key = storage.getItem('masterKey');
-      return Promise.resolve(key);
+      if (key) {
+        return Promise.resolve(key);
+      } else {
+        return Promise.reject();
+      }
     };
 
     MasterKeyRepository.generateKey = function(password) {
