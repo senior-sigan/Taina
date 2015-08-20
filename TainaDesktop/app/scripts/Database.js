@@ -3,13 +3,30 @@
 window.DB = (function(PouchDB) {
   const logger = require('winston');
   const _ = require('lodash');
+  const moment = require('moment');
   const module = {};
 
+  /**
+   * create Database object
+   * @return {DB} Database module
+   */
   module.create = function() {
     const DB = {};
     const Notes = new PouchDB('notes', {adapter: 'idb'});
-    const Passwords = new PouchDB('passwords', {adapter: 'idb'});
 
+    /**
+     * getAllNotes
+     * @return {
+     *  {
+     *  	_id: string,
+     *   	title: string,
+     *   	body: {
+     *   		data: string,
+     *   		iv: string
+     *   	}
+     *  }[]
+     * } promise with array of notes
+     */
     DB.getAllNotes = function() {
       return Notes.allDocs({
         'include_docs': true,
@@ -29,9 +46,24 @@ window.DB = (function(PouchDB) {
       });
     };
 
+    /**
+     * addNote
+     * @param  {object} note
+     * @param  {string} note.title
+     * @param  {string} note.body
+     * @return {Promise} note object
+     */
     DB.addNote = function(note) {
-      return Notes.post(note).then(function(result) {
+      let date = moment().toISOString();
+
+      return Notes.post({
+        title: note.title,
+        body: note.body,
+        createdAt: date,
+        updatedAt: date
+      }).then(function(result) {
         logger.debug(JSON.stringify(result, null, ' '));
+        return result;
       }).catch(function(err) {
         logger.error(
           'Database#addNote(%s): %s',
@@ -41,15 +73,16 @@ window.DB = (function(PouchDB) {
       });
     };
 
+    /**
+     * getNote
+     * @param  {string} id - id of note
+     * @return {Promise} note    
+     */
     DB.getNote = function(id) {
       return Notes.get(id, {attachments: true}).then(function(note) {
         logger.debug(JSON.stringify(note, null, ' '));
         return note;
       });
-    };
-
-    DB.getAllPasswords = function() {
-      return Promise.reject('NOT IMPLEMENTED: DB.getAllPasswords');
     };
 
     return DB;
