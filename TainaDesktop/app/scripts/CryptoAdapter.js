@@ -1,6 +1,6 @@
 'use strict';
 
-window.CryptoService = (function() {
+window.CryptoAdapter = (function() {
   const Promise = require('bluebird');
   const Crypto = Promise.promisifyAll(require('crypto'));
   const HASH_ALGORITHM = 'sha1';
@@ -10,22 +10,22 @@ window.CryptoService = (function() {
   let module = {};
 
   module.create = function() {
-    let CryptoService = {};
+    let CryptoAdapter = {};
 
-    CryptoService.generateHashFromPassword = function(password, hSalt) {
+    CryptoAdapter.generateHashFromPassword = function(password, hSalt) {
       let bSalt = new Buffer(hSalt, 'hex');
       return Crypto.pbkdf2Async(password, bSalt, 4096, 32, HASH_ALGORITHM).then(function(hash) {
         return hash.toString('hex');
       });
     };
 
-    CryptoService.generateSalt = function() {
+    CryptoAdapter.generateSalt = function() {
       return Crypto.randomBytesAsync(SALT_SIZE).then(function(salt) {
         return salt.toString('hex');
       });
     };
 
-    CryptoService.encrypt = function(data, hKey) {
+    CryptoAdapter.encrypt = function(data, hKey) {
       let bKey = new Buffer(hKey, 'hex');
       return Crypto.randomBytesAsync(IV_SIZE).then(function(iv) {
         let cipher = Crypto.createCipheriv(ENCRYPTION_ALGORITHM, bKey, iv);
@@ -38,7 +38,7 @@ window.CryptoService = (function() {
       });
     };
 
-    CryptoService.decrypt = function(data, hKey, hIv) {
+    CryptoAdapter.decrypt = function(data, hKey, hIv) {
       let bKey = new Buffer(hKey, 'hex');
       let bIv = new Buffer(hIv, 'hex');
 
@@ -48,7 +48,7 @@ window.CryptoService = (function() {
       return Promise.resolve(dec);
     };
 
-    return CryptoService;
+    return CryptoAdapter;
   };
 
   return module;
