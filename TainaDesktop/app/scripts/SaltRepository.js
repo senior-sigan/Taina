@@ -4,9 +4,9 @@ window.SaltRepository = (function() {
   const Promise = require('bluebird');
   const module = {};
 
-  module.create = function(cryptoService) {
-    if (!cryptoService) {
-      throw Error('missing cryptoService');
+  module.create = function(cryptoAdapter) {
+    if (!cryptoAdapter) {
+      throw Error('missing cryptoAdapter');
     }
 
     const SaltRepository = {};
@@ -17,7 +17,7 @@ window.SaltRepository = (function() {
       let salt = storage.getItem(SALT_KEY);
 
       if (!salt) {
-        return cryptoService.generateSalt().then(function(salt) {
+        return cryptoAdapter.generateSalt().then(function(salt) {
           storage.setItem(SALT_KEY, salt);
           return salt;
         });

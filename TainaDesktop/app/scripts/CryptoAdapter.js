@@ -38,7 +38,7 @@ window.CryptoAdapter = (function() {
       });
     };
 
-    CryptoAdapter.decrypt = function(data, hKey, hIv) {
+    CryptoAdapter.decrypt = function(data, hIv, hKey) {
       let bKey = new Buffer(hKey, 'hex');
       let bIv = new Buffer(hIv, 'hex');
 

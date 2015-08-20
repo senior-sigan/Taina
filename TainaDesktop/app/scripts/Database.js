@@ -32,6 +32,12 @@ window.DB = (function(PouchDB) {
       });
     };
 
+    DB.getNote = function(id) {
+      return Notes.get(id, {attachments: true}).then(function(note) {
+        return note;
+      });
+    };
+
     DB.getAllPasswords = function() {
 
     };

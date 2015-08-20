@@ -20,7 +20,20 @@ window.Taina = (function() {
       });
     };
 
-    Taina.showNote = function(id) {};
+    Taina.showNote = function(id) {
+      let note = {};
+      return db.getNote(id).then(function(_note) {
+        note = _note;
+        console.log(note);
+        return cryptoService.decrypt(note.body);
+      }).then(function(body) {
+        return {
+          _id: id,
+          title: note.title,
+          body: body
+        };
+      });
+    };
 
     return Taina;
   };
