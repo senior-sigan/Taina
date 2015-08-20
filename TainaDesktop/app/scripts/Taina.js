@@ -24,7 +24,6 @@ window.Taina = (function() {
       let note = {};
       return db.getNote(id).then(function(_note) {
         note = _note;
-        console.log(note);
         return cryptoService.decrypt(note.body);
       }).then(function(body) {
         return {
