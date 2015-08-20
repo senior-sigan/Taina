@@ -1,7 +1,7 @@
 'use strict';
 
 const winston = require('winston');
-const cryptoService = CryptoService.create();
+const cryptoAdapter = CryptoAdapter.create();
 const saltRepository = SaltRepository.create(cryptoService);
 const masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoService);
 const db = DB.create();
