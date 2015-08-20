@@ -12,7 +12,9 @@ window.DB = (function(PouchDB) {
    */
   module.create = function() {
     const DB = {};
-    const Notes = new PouchDB('notes', {adapter: 'idb'});
+    const Notes = new PouchDB('notes', {
+      adapter: 'idb'
+    });
 
     /**
      * getAllNotes
@@ -76,10 +78,12 @@ window.DB = (function(PouchDB) {
     /**
      * getNote
      * @param  {string} id - id of note
-     * @return {Promise} note    
+     * @return {Promise} note
      */
     DB.getNote = function(id) {
-      return Notes.get(id, {attachments: true}).then(function(note) {
+      return Notes.get(id, {
+        attachments: true
+      }).then(function(note) {
         logger.debug(JSON.stringify(note, null, ' '));
         return note;
       });

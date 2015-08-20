@@ -1,5 +1,7 @@
-const app = require('app');  // Module to control application life.
-const BrowserWindow = require('browser-window');  // Module to create native browser window.
+'use strict';
+
+const app = require('app'); // Module to control application life.
+const BrowserWindow = require('browser-window'); // Module to create native browser window.
 const path = require('path');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -11,7 +13,7 @@ var rootPath = path.join('file://', __dirname, '..', '..');
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform != 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
@@ -20,7 +22,10 @@ app.on('window-all-closed', function() {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  });
 
   // and load the index.html of the app.
   mainWindow.loadUrl(rootPath + '/index.html');
