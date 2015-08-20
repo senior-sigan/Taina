@@ -7,7 +7,9 @@
     <title>Hello World!</title>
     <link rel="stylesheet" href="stylesheets/app.css">
     <!-- force using indexed DB instead of nodejs leveldb -->
-    <script src="node_modules/pouchdb/dist/pouchdb.min.js"></script>
+    <script src="node_modules/pouchdb/dist/pouchdb.js"></script>
+    <script src="node_modules/react/dist/react.js"></script>
+    <script src="node_modules/react/dist/JSXTransformer.js"></script>
     <script src="scripts/CryptoAdapter.js"></script>
     <script src="scripts/SaltRepository.js"></script>
     <script src="scripts/MasterKeyRepository.js"></script>
@@ -17,6 +19,8 @@
     <script src="scripts/index.js"></script>
   </head>
   <body>
-    <h1>Hello world</h1>
+    <div id='app'></div>
+
+    <script type="text/jsx" src="scripts/components/app.jsx"></script>
   </body>
 </html>
