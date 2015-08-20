@@ -16,7 +16,7 @@ window.MasterKeyRepository = (function() {
 
     const MasterKeyRepository = {};
     const storage = sessionStorage;
-    
+
     /**
      * Key in the secure storage for masterKey value
      * @const

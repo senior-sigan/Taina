@@ -14,7 +14,7 @@ window.SaltRepository = (function() {
 
     const SaltRepository = {};
     const storage = localStorage;
-    
+
     /**
      * Key in the storage for salt value
      * @const
