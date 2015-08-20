@@ -4,7 +4,9 @@ const winston = require('winston');
 const cryptoAdapter = CryptoAdapter.create();
 const saltRepository = SaltRepository.create(cryptoService);
 const masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoService);
+const cryptoService = CryptoService.create(masterKeyRepository, cryptoAdapter);
 const db = DB.create();
+const taina = Taina.create(cryptoService, db);
 
 let key = null;
 masterKeyRepository.getKey().then(function(key) {
