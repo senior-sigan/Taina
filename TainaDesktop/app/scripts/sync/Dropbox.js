@@ -29,6 +29,68 @@ window.DropboxSync = (function() {
     };
     const storage = localStorage;
     const DB_KEY = '_taina_dropbox_access_token';
+    const DATA_PATH = '/taina.json';
+    const EMPTY_DATA = {
+      salt: null,
+      data: []
+    };
+
+    function getClient() {
+      return DropboxSync.getToken().then(function(accessToken) {
+        return dboxApp.client(accessToken);
+      });
+    }
+
+    DropboxSync.getAccountInfo = function() {
+      return getClient().then(function(client) {
+        return new Promise(function(resolve, reject) {
+          client.account(function(status, data) {
+            if (status === 200) {
+              resolve({
+                email: data.email,
+                name: data.display_name
+              });
+            } else {
+              reject('[DropboxSync] can\'t get account info ' + data.error);
+            }
+          });
+        });
+      });
+    };
+
+    DropboxSync.saveData = function(data) {
+      data = JSON.stringify(data || EMPTY_DATA, null, ' ');
+      return getClient().then(function(client) {
+        return new Promise(function(resolve, reject) {
+          client.put(DATA_PATH, data, {}, function(status, reply) {
+            if (status === 200) {
+              winston.info('[DropboxSync] data was saved ' + JSON.stringify(reply));
+              resolve(null);
+            } else {
+              reject('[DropboxSync] can\'t save data ' + JSON.stringify(reply));
+            }
+          });
+        });
+      });
+    };
+
+    DropboxSync.loadData = function() {
+      return getClient().then(function(client) {
+        return new Promise(function(resolve, reject) {
+          client.get(DATA_PATH, {}, function(status, data, metadata) {
+            if (status === 404) {
+              winston.info('[DropboxSync] Data file not found ' + DATA_PATH);
+              resolve(EMPTY_DATA);
+            } else if (status === 200) {
+              winston.info('[DropboxSync] Data loaded ' + JSON.stringify(metadata, null, ' '));
+              resolve(JSON.parse(data.toString()));
+            } else {
+              reject('[DropboxSync] can\'t load data ' + data.toString());
+            }
+          });
+        });
+      });
+    };
 
     /**
      * @method getToken
@@ -84,6 +146,7 @@ window.DropboxSync = (function() {
       });
     };
 
+    DropboxSync.getClient = getClient;
     return DropboxSync;
   };
 

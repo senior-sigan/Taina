@@ -8,7 +8,7 @@ const cryptoService = CryptoService.create(masterKeyRepository, cryptoAdapter);
 const db = DB.create();
 const taina = Taina.create(cryptoService, db);
 
-
+window.dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret:'7bm6qlat09zs8ro'});
 // TEST
 let key = null;
 winston.info('>>> START TEST');

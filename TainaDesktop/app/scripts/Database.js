@@ -4,6 +4,7 @@ window.DB = (function(PouchDB) {
   const logger = require('winston');
   const _ = require('lodash');
   const moment = require('moment');
+  const uuid = require('node-uuid');
   const module = {};
 
   /**
@@ -50,6 +51,7 @@ window.DB = (function(PouchDB) {
 
     /**
      * addNote
+     * @description id for new note generated as uuid
      * @param  {object} note
      * @param  {string} note.title
      * @param  {string} note.body
@@ -58,7 +60,8 @@ window.DB = (function(PouchDB) {
     DB.addNote = function(note) {
       let date = moment().toISOString();
 
-      return Notes.post({
+      return Notes.put({
+        _id: uuid.v4(),
         title: note.title,
         body: note.body,
         createdAt: date,
@@ -86,6 +89,15 @@ window.DB = (function(PouchDB) {
       }).then(function(note) {
         logger.debug(JSON.stringify(note, null, ' '));
         return note;
+      });
+    };
+
+    DB.drop = function() {
+      return Notes.destroy().then(function() {
+        logger.info('Database destroyed');
+      }).catch(function(err) {
+        logger.error('Database#drop failed: %s', JSON.stringify(err, null, ' '));
+        throw err;
       });
     };
 
