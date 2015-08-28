@@ -27,9 +27,26 @@ window.DropboxSync = (function() {
         'web-security': true
       }
     };
+    const storage = localStorage;
+    const DB_KEY = '_taina_dropbox_access_token';
+
+    /**
+     * @method getToken
+     * @description Load Dropbox access token from storage. Reject if not found
+     * @return {Promise} accessToken
+     */
+    DropboxSync.getToken = Promise.method(function() {
+      let accessToken = storage.getItem(DB_KEY);
+      if (accessToken) {
+        return JSON.parse(accessToken);
+      } else {
+        throw 'Dropbox accessToken not found. Get new one.';
+      }
+    });
 
     /**
      * @method startAuth
+     * @description Open new window and start dropbox authentication. Save accessToken in storage.
      * @return {Promise} dropbox accessToken
      */
     DropboxSync.startAuth = function() {
@@ -48,9 +65,12 @@ window.DropboxSync = (function() {
                 authWindow.close();
                 dboxApp.accesstoken(token, function(status, accessToken) {
                   if (status === 200) {
+                    storage.setItem(DB_KEY, JSON.stringify(accessToken));
+                    winston.info('[DropboxSync] accessToken loaded');
                     resolve(accessToken);
                   } else {
-                    winston.error('Can\'t get dropbox accessToken: %d, %s', status, JSON.stringify(accessToken, null, ' '));
+                    winston.error('Can\'t get dropbox accessToken: %d, %s',
+                      status, JSON.stringify(accessToken, null, ' '));
                     reject('[DropboxSync] can\t get accessToken: ' + status);
                   }
                 });
