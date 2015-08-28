@@ -3,6 +3,7 @@
 const app = require('app'); // Module to control application life.
 const BrowserWindow = require('browser-window'); // Module to create native browser window.
 const path = require('path');
+const ipc = require('ipc');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is GCed.
@@ -40,4 +41,12 @@ app.on('ready', function() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+});
+
+app.on('window-all-closed', function() {
+  app.quit();
+});
+
+ipc.on('app-quit', function() {
+  app.quit();
 });

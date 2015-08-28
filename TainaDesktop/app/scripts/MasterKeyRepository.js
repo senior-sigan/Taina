@@ -2,6 +2,7 @@
 
 window.MasterKeyRepository = (function() {
   const Promise = require('bluebird');
+  const _ = require('lodash');
   const module = {};
 
   /**
@@ -51,6 +52,29 @@ window.MasterKeyRepository = (function() {
       });
     };
 
+    MasterKeyRepository.validatePassword = function(password) {
+      const MIN_PASSWORD_LENGTH = 6;
+      const MAX_PASSWORD_LENGTH = 256;
+
+      if (typeof password !== 'string') {
+        return Promise.reject('Password should be string');
+      }
+
+      if (_.isEmpty(password)) {
+        return Promise.reject('Password can not be empty');
+      }
+
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        return Promise.reject('Password length should be more than ' + MIN_PASSWORD_LENGTH);
+      }
+
+      if (password.length > MAX_PASSWORD_LENGTH) {
+        return Promise.reject('Password length should be less than ' + MAX_PASSWORD_LENGTH);
+      }
+
+      return Promise.resolve(null);
+    };
+
     /**
      * @method saveKey
      * @description generate key and save in secure storage
@@ -59,7 +83,9 @@ window.MasterKeyRepository = (function() {
      * @return {Promise} master key
      */
     MasterKeyRepository.saveKey = function(password) {
-      return MasterKeyRepository.generateKey(password).then(function(key) {
+      return MasterKeyRepository.validatePassword(password).then(function(){
+        return MasterKeyRepository.generateKey(password);
+      }).then(function(key) {
         storage.setItem(MASTER_KEY_KEY, key);
         return key;
       });

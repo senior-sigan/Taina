@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "bluebird": "^2.9.34",
+    "dbox": "^0.6.4",
     "lodash": "^3.10.1",
     "moment": "^2.10.6",
     "pouchdb": "^4.0.0",
