@@ -4,6 +4,7 @@ const logger = window.require('winston');
 const _ = window.require('lodash');
 const moment = window.require('moment');
 const uuid = window.require('node-uuid');
+const Promise = window.require('bluebird');
 
 /**
  * create Database object
@@ -29,21 +30,24 @@ module.exports.create = function() {
    * } promise with array of notes
    */
   DB.getAllNotes = function() {
-    return Notes.allDocs({
-      'include_docs': true,
-      attachments: true
-    }).then(function(result) {
-      return _.map(result.rows, function(row) {
-        let note = row.doc;
-
-        return {
-          _id: note._id,
-          title: note.title,
-          body: note.body
-        };
+    return Notes.allDocs().then(function(result) {
+      return Promise.map(result.rows, function(row) {
+        return DB.getNote(row.id).then(function(doc) {
+          return {
+            _id: doc._id,
+            _rev: doc._rev,
+            _revisions: doc._revisions,
+            title: doc.title,
+            body: doc.body
+          };
+        });
+      }).then(function(notes) {
+        console.log(notes);
+        return notes;
       });
     }).catch(function(err) {
       logger.error('Database#getAllNotes: %s', JSON.stringify(err, null, ' '));
+      throw err;
     });
   };
 
@@ -52,7 +56,9 @@ module.exports.create = function() {
    * @description id for new note generated as uuid
    * @param  {object} note
    * @param  {string} note.title
-   * @param  {string} note.body
+   * @param  {object} note.body
+   * @param  {string} note.body.data - encrypted data
+   * @param  {string} note.body.iv - initialization vector
    * @return {Promise} note object
    */
   DB.addNote = function(note) {
@@ -83,16 +89,53 @@ module.exports.create = function() {
    */
   DB.getNote = function(id) {
     return Notes.get(id, {
-      attachments: true
+      attachments: true,
+      revs: true
     }).then(function(note) {
-      logger.debug(JSON.stringify(note, null, ' '));
+      logger.info(JSON.stringify(note, null, ' '));
       return note;
+    });
+  };
+
+  /**
+   * editNote
+   * @param  {string} id - id of the note to edit
+   * @param  {object} note
+   * @param  {string} note.title
+   * @param  {object} note.body
+   * @param  {string} note.body.data - encrypted data
+   * @param  {string} note.body.iv - initialization vector
+   * @return {Promise}
+   */
+  DB.editNote = function(id, note) {
+    let date = moment().toISOString();
+    return Notes.get(id).then(function(doc) {
+      let changes = {
+        _id: id,
+        _rev: doc._rev,
+        updatedAt: date,
+        title: note.title || doc.title,
+        body: note.body || doc.body
+      };
+      console.log(changes);
+
+      return Notes.put(changes).then(function(result) {
+        logger.debug(JSON.stringify(result, null, ' '));
+        return result;
+      }).catch(function(err) {
+        logger.error(
+          'Database#editNote(%s): %s',
+          JSON.stringify(note, null, ' '),
+          JSON.stringify(err, null, ' ')
+        );
+      });
     });
   };
 
   DB.drop = function() {
     return Notes.destroy().then(function() {
       logger.info('Database destroyed');
+      indexedDB.deleteDatabase('_pouch_notes');
     }).catch(function(err) {
       logger.error('Database#drop failed: %s', JSON.stringify(err, null, ' '));
       throw err;

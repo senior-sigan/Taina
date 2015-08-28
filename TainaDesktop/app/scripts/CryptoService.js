@@ -1,5 +1,7 @@
 'use strict';
 
+const logger = window.require('winston');
+
 /**
  * create CryptoService object
  * @param  {MasterKeyRepository} masterKeyRepository
@@ -26,10 +28,16 @@ module.exports.create = function(masterKeyRepository, cryptoAdapter) {
   /**
    * @method decrypt
    * @description decrypt data with key stored in MasterKeyRepository
-   * @param  {string} data - encrypted data as string in hex format
+   * @param  {object} data
+   * @param  {string} data.data - encrypted data as string in hex format
+   * @param  {string} data.iv - initialization vector for aes-256
    * @return {Promise} open data as string
    */
   CryptoService.decrypt = function(data) {
+    if (!data || !data.data || !data.iv) {
+      logger.warn('CryptoService.decrypt - input data is empty');
+      return null;
+    }
     return masterKeyRepository.getKey().then(function(key) {
       return cryptoAdapter.decrypt(data.data, data.iv, key);
     });
