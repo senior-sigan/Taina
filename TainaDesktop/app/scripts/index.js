@@ -1,6 +1,14 @@
 'use strict';
 
-const winston = require('winston');
+const winston = window.require('winston');
+const CryptoAdapter = require('./CryptoAdapter');
+const SaltRepository = require('./SaltRepository');
+const MasterKeyRepository = require('./MasterKeyRepository');
+const CryptoService = require('./CryptoService');
+const DB = require('./Database');
+const Taina = require('./Taina');
+const DropboxSync = require('./sync/DropboxSync');
+
 const cryptoAdapter = CryptoAdapter.create();
 const saltRepository = SaltRepository.create(cryptoAdapter);
 const masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoAdapter);
