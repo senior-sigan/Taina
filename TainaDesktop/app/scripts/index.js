@@ -14,7 +14,9 @@ const saltRepository = SaltRepository.create(cryptoAdapter);
 const masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoAdapter);
 const cryptoService = CryptoService.create(masterKeyRepository, cryptoAdapter);
 const db = DB.create();
+window.db = db;
 const taina = Taina.create(cryptoService, db);
+window.taina = taina;
 
 window.dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret:'7bm6qlat09zs8ro'});
 // TEST

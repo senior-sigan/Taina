@@ -6,6 +6,8 @@
  */
 
 const Promise = window.require('bluebird');
+const _ = window.require('lodash');
+const logger = window.require('winston');
 
 /**
  * create Taina object
@@ -38,6 +40,37 @@ module.exports.create = function(cryptoService, db) {
     return cryptoService.encrypt(body).then(function(encryptedBody) {
       return db.addNote({
         title: title,
+        body: encryptedBody
+      });
+    });
+  };
+
+  /**
+   * editNote
+   * @param  {string} id
+   * @param  {object} note
+   * @param  {string} note.title
+   * @param  {string} note.body
+   * @return {Promise}
+   */
+  Taina.editNote = function(id, note) {
+    if (!_.isObject(note)) {
+      return Promise.reject('Note argument should be object');
+    }
+    if (!note.title || !note.body) {
+      logger.info('Taina.editNote - nothing to update');
+      return Promise.resolve(null);
+    }
+
+    return Taina.showNote(id).then(function() {
+      if (note.body) {
+        return cryptoService.encrypt(note.body);
+      } else {
+        return null;
+      }
+    }).then(function(encryptedBody) {
+      return db.editNote(id, {
+        title: note.title,
         body: encryptedBody
       });
     });
