@@ -85,7 +85,7 @@ module.exports.create = function(cryptoService, db) {
   Taina.showNote = function(id) {
     let note = {};
     return db.getNote(id).then(function(_note) {
-      note = _note;
+      note = _note.data;
       return cryptoService.decrypt(note.body);
     }).then(function(body) {
       return {
