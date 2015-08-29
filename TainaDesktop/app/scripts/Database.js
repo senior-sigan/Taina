@@ -4,7 +4,7 @@ const logger = window.require('winston');
 const _ = window.require('lodash');
 const moment = window.require('moment');
 const Promise = window.require('bluebird');
-const Random = require('./sync/Random');
+const Random = require('./helpers/Random');
 
 /**
  * create Database object
