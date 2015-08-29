@@ -4,6 +4,7 @@ const Promise = window.require('bluebird');
 const winston = window.require('winston');
 const remote = window.require('remote');
 const BrowserWindow = remote.require('browser-window');
+const moment = window.require('moment');
 const dbox  = window.require('dbox');
 
 /**
@@ -31,7 +32,6 @@ module.exports.create = function(options) {
   const DB_KEY = '_taina_dropbox_access_token';
   const DATA_PATH = '/taina.json';
   const EMPTY_DATA = {
-    salt: null,
     data: []
   };
 
@@ -74,16 +74,28 @@ module.exports.create = function(options) {
     });
   };
 
+  /**
+   * @method bulkSave
+   * @param  {Object[]} data
+   * @return {Promise}
+   */
+  DropboxSync.bulkSave = function(data) {
+    return DropboxSync.saveData({
+      data: data,
+      lastSync: moment().toISOString()
+    });
+  };
+
   DropboxSync.loadData = function() {
     return getClient().then(function(client) {
       return new Promise(function(resolve, reject) {
         client.get(DATA_PATH, {}, function(status, data, metadata) {
           if (status === 404) {
             winston.info('[DropboxSync] Data file not found ' + DATA_PATH);
-            resolve(EMPTY_DATA);
+            resolve([]);
           } else if (status === 200) {
             winston.info('[DropboxSync] Data loaded ' + JSON.stringify(metadata, null, ' '));
-            resolve(JSON.parse(data.toString()));
+            resolve(JSON.parse(data.toString()).data);
           } else {
             reject('[DropboxSync] can\'t load data ' + data.toString());
           }

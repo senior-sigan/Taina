@@ -36,9 +36,9 @@ module.exports.create = function() {
           return {
             _id: doc._id,
             _rev: doc._rev,
-            _revisions: doc._revisions,
-            title: doc.title,
-            body: doc.body
+            _revision: doc.revision,
+            _remoteRevision: doc.remoteRevision,
+            data: doc.data
           };
         });
       }).then(function(notes) {
@@ -62,14 +62,15 @@ module.exports.create = function() {
    * @return {Promise} note object
    */
   DB.addNote = function(note) {
-    let date = moment().toISOString();
-
+    debugger;
     return Notes.put({
       _id: Random.uuid(),
-      title: note.title,
-      body: note.body,
-      createdAt: date,
-      updatedAt: date
+      revision: Random.nextRevision(),
+      remoteRevision: null,
+      data: {
+        title: note.title,
+        body: note.body
+      }
     }).then(function(result) {
       logger.debug(JSON.stringify(result, null, ' '));
       return result;
@@ -108,14 +109,16 @@ module.exports.create = function() {
    * @return {Promise}
    */
   DB.editNote = function(id, note) {
-    let date = moment().toISOString();
     return Notes.get(id).then(function(doc) {
       let changes = {
         _id: id,
         _rev: doc._rev,
-        updatedAt: date,
-        title: note.title || doc.title,
-        body: note.body || doc.body
+        revision: Random.nextRevision(doc.remoteRevision),
+        remoteRevision: doc.remoteRevision,
+        data: {
+          title: note.title || doc.title,
+          body: note.body || doc.body
+        }
       };
       console.log(changes);
 
@@ -130,6 +133,10 @@ module.exports.create = function() {
         );
       });
     });
+  };
+
+  DB.bulkUpdate = function(data) {
+    return Promise.resolve(null);
   };
 
   DB.drop = function() {

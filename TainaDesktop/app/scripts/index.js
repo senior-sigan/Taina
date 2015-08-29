@@ -23,6 +23,7 @@ window.taina = taina;
 const dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret:'7bm6qlat09zs8ro'});
 window.dbs = dbs;
 const sync = Sync.create(db, [dbs], Random);
+window.sync = sync;
 const syncTest = SyncTest.create(sync);
 syncTest.run();
 
