@@ -3,8 +3,8 @@
 const logger = window.require('winston');
 const _ = window.require('lodash');
 const moment = window.require('moment');
-const uuid = window.require('node-uuid');
 const Promise = window.require('bluebird');
+const Random = require('./sync/Random');
 
 /**
  * create Database object
@@ -65,7 +65,7 @@ module.exports.create = function() {
     let date = moment().toISOString();
 
     return Notes.put({
-      _id: uuid.v4(),
+      _id: Random.uuid(),
       title: note.title,
       body: note.body,
       createdAt: date,

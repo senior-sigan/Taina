@@ -15,7 +15,9 @@ const dbox  = window.require('dbox');
  */
 module.exports.create = function(options) {
   const dboxApp = dbox.app({'app_key' : options.key, 'app_secret': options.secret});
-  const DropboxSync = {};
+  const DropboxSync = {
+    name: 'Dropbox'
+  };
   const browserConfig = {
     height: 600,
     width: 800,
