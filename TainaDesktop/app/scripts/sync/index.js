@@ -97,7 +97,7 @@ module.exports.create = function(db, syncServices) {
         _id: doc._id,
         _remoteRevision: doc._revision,
         _revision: doc._revision,
-        data: doc.data
+        data: doc._revisions[doc._revisions.length - 1].data
       });
     });
 
