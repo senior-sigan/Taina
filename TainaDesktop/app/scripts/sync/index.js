@@ -3,15 +3,16 @@
 const Promise = window.require('bluebird');
 const logger = window.require('winston');
 const _ = window.require('lodash');
-const Random = require('../helpers/Random');
 
 /**
  * create Synch object
  * @param  {Database} db
  * @param  {array} synchServices - list of services implemented synchronization interface: DropboxSync, GoogleSync.
+ * @param  {object} Random
+ * @param  {function} Random.uuid
  * @return {Synch}
  */
-module.exports.create = function(db, syncServices) {
+module.exports.create = function(db, syncServices, Random) {
   const Sync = {};
 
   Sync.runOne = function(syncService) {
@@ -68,7 +69,7 @@ module.exports.create = function(db, syncServices) {
     });
 
     _.forEach(localChanges, function(doc) {
-      if (indexedRemoteData[doc._id]._revision === doc._remoteRevision) {
+      if (indexedRemoteData[doc._id] && indexedRemoteData[doc._id]._revision === doc._remoteRevision) {
         // remote data has no changes, so just add new changes
         indexedRemoteData[doc._id]._revisions.push({
           _revision: doc._revision,
