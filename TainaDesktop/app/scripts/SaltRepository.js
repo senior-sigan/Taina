@@ -1,7 +1,7 @@
 'use strict';
 
 
-const Promise = window.require('bluebird');
+import PromiseA from 'bluebird';
 
 /**
  * create SaltRepository object
@@ -24,20 +24,20 @@ module.exports.create = function(cryptoAdapter) {
   /**
    * @method findOrCreate
    * @description find salt in repository or randomly generate new one
-   * @return {Promise} salt as string
+   * @return {PromiseA} salt as string
    */
   SaltRepository.findOrCreate = function() {
     let salt = storage.getItem(SALT_KEY);
 
     if (!salt) {
-      return cryptoAdapter.generateSalt().then(function(salt) {
+      return cryptoAdapter.generateSalt().then(salt => {
         storage.setItem(SALT_KEY, salt);
         return salt;
       });
     } else {
-      return Promise.resolve(salt);
+      return PromiseA.resolve(salt);
     }
   };
 
   return SaltRepository;
-};
+}

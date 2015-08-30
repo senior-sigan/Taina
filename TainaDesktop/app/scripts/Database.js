@@ -1,10 +1,8 @@
 'use strict';
 
-const logger = window.require('winston');
-const _ = window.require('lodash');
-const moment = window.require('moment');
-const Promise = window.require('bluebird');
-const Random = require('./helpers/Random');
+import logger from 'winston';
+import PromiseA from 'bluebird';
+import Random from './helpers/Random';
 
 /**
  * create Database object
@@ -27,12 +25,12 @@ module.exports.create = function() {
    *   		iv: string
    *   	}
    *  }[]
-   * } promise with array of notes
+   * } PromiseA with array of notes
    */
   DB.getAllNotes = function() {
-    return Notes.allDocs().then(function(result) {
-      return Promise.map(result.rows, function(row) {
-        return DB.getNote(row.id).then(function(doc) {
+    return Notes.allDocs().then(result => {
+      return PromiseA.map(result.rows, row => {
+        return DB.getNote(row.id).then(doc => {
           return {
             _id: doc._id,
             _rev: doc._rev,
@@ -41,11 +39,11 @@ module.exports.create = function() {
             data: doc.data
           };
         });
-      }).then(function(notes) {
+      }).then(notes => {
         console.log(notes);
         return notes;
       });
-    }).catch(function(err) {
+    }).catch(err => {
       logger.error('Database#getAllNotes: %s', JSON.stringify(err, null, ' '));
       throw err;
     });
@@ -59,7 +57,7 @@ module.exports.create = function() {
    * @param  {object} note.body
    * @param  {string} note.body.data - encrypted data
    * @param  {string} note.body.iv - initialization vector
-   * @return {Promise} note object
+   * @return {PromiseA} note object
    */
   DB.addNote = function(note) {
     return Notes.put({
@@ -70,10 +68,10 @@ module.exports.create = function() {
         title: note.title,
         body: note.body
       }
-    }).then(function(result) {
+    }).then(result => {
       logger.debug(JSON.stringify(result, null, ' '));
       return result;
-    }).catch(function(err) {
+    }).catch(err => {
       logger.error(
         'Database#addNote(%s): %s',
         JSON.stringify(note, null, ' '),
@@ -85,13 +83,13 @@ module.exports.create = function() {
   /**
    * getNote
    * @param  {string} id - id of note
-   * @return {Promise} note
+   * @return {PromiseA} note
    */
   DB.getNote = function(id) {
     return Notes.get(id, {
       attachments: true,
       revs: true
-    }).then(function(note) {
+    }).then(note => {
       logger.info(JSON.stringify(note, null, ' '));
       return note;
     });
@@ -105,10 +103,10 @@ module.exports.create = function() {
    * @param  {object} note.body
    * @param  {string} note.body.data - encrypted data
    * @param  {string} note.body.iv - initialization vector
-   * @return {Promise}
+   * @return {PromiseA}
    */
   DB.editNote = function(id, note) {
-    return Notes.get(id).then(function(doc) {
+    return Notes.get(id).then(doc => {
       let changes = {
         _id: id,
         _rev: doc._rev,
@@ -121,10 +119,10 @@ module.exports.create = function() {
       };
       console.log(changes);
 
-      return Notes.put(changes).then(function(result) {
+      return Notes.put(changes).then(result => {
         logger.debug(JSON.stringify(result, null, ' '));
         return result;
-      }).catch(function(err) {
+      }).catch(err => {
         logger.error(
           'Database#editNote(%s): %s',
           JSON.stringify(note, null, ' '),
@@ -135,22 +133,22 @@ module.exports.create = function() {
   };
 
   DB.bulkUpdate = function(data) {
-    return Promise.map(data, function(doc) {
-      return Notes.get(doc._id).then(function(d) {
+    return PromiseA.map(data, doc => {
+      return Notes.get(doc._id).then(d => {
         doc._rev = d._rev;
         return doc;
-      }).catch(function(err) {
+      }).catch(err => {
         console.log(err);
         return doc;
       });
-    }).then(function(docs) {
+    }).then(docs => {
       logger.info('DB.bulkUpdate: complete bulk updating');
       return Notes.bulkDocs(docs);
     });
   };
 
   DB.drop = function() {
-    return Notes.destroy().then(function() {
+    return Notes.destroy().then(() => {
       logger.info('Database destroyed');
       indexedDB.deleteDatabase('_pouch_notes');
     }).catch(function(err) {
