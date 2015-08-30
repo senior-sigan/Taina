@@ -36,8 +36,8 @@ module.exports.create = function() {
           return {
             _id: doc._id,
             _rev: doc._rev,
-            _revision: doc.revision,
-            _remoteRevision: doc.remoteRevision,
+            revision: doc.revision,
+            remoteRevision: doc.remoteRevision,
             data: doc.data
           };
         });
@@ -62,7 +62,6 @@ module.exports.create = function() {
    * @return {Promise} note object
    */
   DB.addNote = function(note) {
-    debugger;
     return Notes.put({
       _id: Random.uuid(),
       revision: Random.nextRevision(),
@@ -136,7 +135,18 @@ module.exports.create = function() {
   };
 
   DB.bulkUpdate = function(data) {
-    return Promise.resolve(null);
+    return Promise.map(data, function(doc) {
+      return Notes.get(doc._id).then(function(d) {
+        doc._rev = d._rev;
+        return doc;
+      }).catch(function(err) {
+        console.log(err);
+        return doc;
+      });
+    }).then(function(docs) {
+      logger.info('DB.bulkUpdate: complete bulk updating');
+      return Notes.bulkDocs(docs);
+    });
   };
 
   DB.drop = function() {
