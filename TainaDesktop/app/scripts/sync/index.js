@@ -40,17 +40,17 @@ module.exports.create = function(db, syncServices, Random) {
   /**
    * @typedef  {Object} RemoteData
    * @property {String} _id - in format 'f39c6cb6-a271-4350-bb13-20450da27827'
-   * @property {String} _revision - current revision in format '1_f39c6cb6-a271-4350-bb13-20450da27827'
-   * @property {Object[]} _revisions - list of all revisions
-   * @property {String} _revisions[]._revision - is revision of this object
-   * @property {Object} _revisions[].data - payload
+   * @property {String} revision - current revision in format '1_f39c6cb6-a271-4350-bb13-20450da27827'
+   * @property {Object[]} revisions - list of all revisions
+   * @property {String} revisions[]._revision - is revision of this object
+   * @property {Object} revisions[].data - payload
    */
 
   /**
    * @typedef  {Object} LocalData
    * @property {String} _id - in format 'f39c6cb6-a271-4350-bb13-20450da27827'
-   * @property {String} _remoteRevision - last saved remote revision
-   * @property {String} _revision - current revision in format '1_f39c6cb6-a271-4350-bb13-20450da27827'
+   * @property {String} remoteRevision - last saved remote revision
+   * @property {String} revision - current revision in format '1_f39c6cb6-a271-4350-bb13-20450da27827'
    * @property {Object} data - payload
    */
 
@@ -65,25 +65,46 @@ module.exports.create = function(db, syncServices, Random) {
     let indexedRemoteData = _.indexBy(remoteData, '_id');
     let localChanges = _.filter(localData, function(doc) {
       // if remote and local revisions are different so object was changed
-      return doc._remoteRevision !== doc._revision;
+      return doc.remoteRevision !== doc.revision;
+    });
+    let localUnchanged = _.filter(localData, function(doc) {
+      return doc.remoteRevision === doc.revision;
+    });
+
+    _.forEach(localUnchanged, function(doc) {
+      let id = doc._id;
+      if (!indexedRemoteData[id]) {
+        indexedRemoteData[id] = {
+          _id: id,
+          revision: doc.revision,
+          revisions: [{
+            revision: doc.revision,
+            data: doc.data
+          }]
+        };
+      }
     });
 
     _.forEach(localChanges, function(doc) {
-      if (indexedRemoteData[doc._id] && indexedRemoteData[doc._id]._revision === doc._remoteRevision) {
+      if (indexedRemoteData[doc._id] && indexedRemoteData[doc._id].revision === doc.remoteRevision) {
         // remote data has no changes, so just add new changes
-        indexedRemoteData[doc._id]._revisions.push({
-          _revision: doc._revision,
+        indexedRemoteData[doc._id].revisions.push({
+          revision: doc.revision,
           data: doc.data
         });
-        indexedRemoteData[doc._id]._revision = doc._revision;
+        indexedRemoteData[doc._id].revision = doc.revision;
       } else {
         // remote data has been changed too, so save local changes as new data
-        let newId = Random.uuid();
-        indexedRemoteData[newId] = {
-          _id: newId,
-          _revision: doc._revision,
-          _revisions: [{
-            _revision: doc._revision,
+        let id = Random.uuid();
+        if (_.isNull(doc.remoteRevision)) {
+          // local data is new
+          id = doc._id;
+        }
+        indexedRemoteData[id] = {
+          _id: id,
+          revision: doc.revision,
+          revisions: [{
+            revision: doc.revision,
             data: doc.data
           }]
         };
@@ -96,9 +117,9 @@ module.exports.create = function(db, syncServices, Random) {
       newRemoteData.push(doc);
       newLocalData.push({
         _id: doc._id,
-        _remoteRevision: doc._revision,
-        _revision: doc._revision,
-        data: doc._revisions[doc._revisions.length - 1].data
+        remoteRevision: doc.revision,
+        revision: doc.revision,
+        data: doc.revisions[doc.revisions.length - 1].data
       });
     });
 

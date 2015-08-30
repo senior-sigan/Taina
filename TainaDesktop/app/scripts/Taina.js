@@ -57,7 +57,7 @@ module.exports.create = function(cryptoService, db) {
     if (!_.isObject(note)) {
       return Promise.reject('Note argument should be object');
     }
-    if (!note.title || !note.body) {
+    if (!note.title && !note.body) {
       logger.info('Taina.editNote - nothing to update');
       return Promise.resolve(null);
     }
