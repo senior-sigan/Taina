@@ -1,7 +1,7 @@
 'use strict';
 
-const Promise = window.require('bluebird');
-const _ = window.require('lodash');
+import PromiseA from 'bluebird';
+import _ from 'lodash';
 
 /**
  * create MasterKeyRepository object
@@ -26,14 +26,14 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
   /**
    * @method getKey
    * @description load master key from secter storage. Raise error if not found.
-   * @return {Promise} secret master key as string
+   * @return {PromiseA} secret master key as string
    */
   MasterKeyRepository.getKey = function() {
     let key = storage.getItem(MASTER_KEY_KEY);
     if (key) {
-      return Promise.resolve(key);
+      return PromiseA.resolve(key);
     } else {
-      return Promise.reject('Master key not found. Generate new.');
+      return PromiseA.reject('Master key not found. Generate new.');
     }
   };
 
@@ -42,10 +42,10 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
    * @description generate master key from password with random generated or founded in storage salt
    * @see module:SaltRepository
    * @param  {string} password
-   * @return {Promise} master key
+   * @return {PromiseA} master key
    */
   MasterKeyRepository.generateKey = function(password) {
-    return saltRepository.findOrCreate().then(function(salt) {
+    return saltRepository.findOrCreate().then(salt => {
       return cryptoAdapter.generateHashFromPassword(password, salt);
     });
   };
@@ -55,22 +55,22 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
     const MAX_PASSWORD_LENGTH = 256;
 
     if (typeof password !== 'string') {
-      return Promise.reject('Password should be string');
+      return PromiseA.reject('Password should be string');
     }
 
     if (_.isEmpty(password)) {
-      return Promise.reject('Password can not be empty');
+      return PromiseA.reject('Password can not be empty');
     }
 
     if (password.length < MIN_PASSWORD_LENGTH) {
-      return Promise.reject('Password length should be more than ' + MIN_PASSWORD_LENGTH);
+      return PromiseA.reject('Password length should be more than ' + MIN_PASSWORD_LENGTH);
     }
 
     if (password.length > MAX_PASSWORD_LENGTH) {
-      return Promise.reject('Password length should be less than ' + MAX_PASSWORD_LENGTH);
+      return PromiseA.reject('Password length should be less than ' + MAX_PASSWORD_LENGTH);
     }
 
-    return Promise.resolve(null);
+    return PromiseA.resolve(null);
   };
 
   /**
@@ -78,16 +78,16 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
    * @description generate key and save in secure storage
    * @see generateKey
    * @param  {string} password
-   * @return {Promise} master key
+   * @return {PromiseA} master key
    */
   MasterKeyRepository.saveKey = function(password) {
-    return MasterKeyRepository.validatePassword(password).then(function(){
+    return MasterKeyRepository.validatePassword(password).then(() => {
       return MasterKeyRepository.generateKey(password);
-    }).then(function(key) {
+    }).then(key => {
       storage.setItem(MASTER_KEY_KEY, key);
       return key;
     });
   };
 
   return MasterKeyRepository;
-};
+}

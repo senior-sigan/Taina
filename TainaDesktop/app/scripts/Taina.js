@@ -5,9 +5,9 @@
  * @module Taina
  */
 
-const Promise = window.require('bluebird');
-const _ = window.require('lodash');
-const logger = window.require('winston');
+import PromiseA from 'bluebird';
+import _ from 'lodash';
+import logger from 'winston';
 
 /**
  * create Taina object
@@ -23,7 +23,7 @@ module.exports.create = function(cryptoService, db) {
   /**
    * @method getNotes
    * @description get array of all notes. All data exept body is open. Body is encrypted.
-   * @return {Promise} array of notes
+   * @return {PromiseA} array of notes
    */
   Taina.getNotes = function() {
     return db.getAllNotes();
@@ -34,10 +34,10 @@ module.exports.create = function(cryptoService, db) {
    * @description create new note
    * @param  {string} title - this will be stored as open text
    * @param  {string} body - this will be encrypted
-   * @return {Promise}
+   * @return {PromiseA}
    */
   Taina.addNote = function(title, body) {
-    return cryptoService.encrypt(body).then(function(encryptedBody) {
+    return cryptoService.encrypt(body).then(encryptedBody => {
       return db.addNote({
         title: title,
         body: encryptedBody
@@ -51,24 +51,24 @@ module.exports.create = function(cryptoService, db) {
    * @param  {object} note
    * @param  {string} note.title
    * @param  {string} note.body
-   * @return {Promise}
+   * @return {PromiseA}
    */
   Taina.editNote = function(id, note) {
     if (!_.isObject(note)) {
-      return Promise.reject('Note argument should be object');
+      return PromiseA.reject('Note argument should be object');
     }
     if (!note.title && !note.body) {
       logger.info('Taina.editNote - nothing to update');
-      return Promise.resolve(null);
+      return PromiseA.resolve(null);
     }
 
-    return Taina.showNote(id).then(function() {
+    return Taina.showNote(id).then(() => {
       if (note.body) {
         return cryptoService.encrypt(note.body);
       } else {
         return null;
       }
-    }).then(function(encryptedBody) {
+    }).then(encryptedBody => {
       return db.editNote(id, {
         title: note.title,
         body: encryptedBody
@@ -80,14 +80,14 @@ module.exports.create = function(cryptoService, db) {
    * @method showNote
    * @description find note in DB by id and decrypt it
    * @param  {string} id
-   * @return {Promise} decrypted note
+   * @return {PromiseA} decrypted note
    */
   Taina.showNote = function(id) {
     let note = {};
-    return db.getNote(id).then(function(_note) {
+    return db.getNote(id).then(_note => {
       note = _note.data;
       return cryptoService.decrypt(note.body);
-    }).then(function(body) {
+    }).then(body => {
       return {
         _id: id,
         title: note.title,
@@ -97,4 +97,4 @@ module.exports.create = function(cryptoService, db) {
   };
 
   return Taina;
-};
+}

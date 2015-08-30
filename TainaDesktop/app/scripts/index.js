@@ -1,16 +1,16 @@
 'use strict';
 
-const winston = window.require('winston');
-const CryptoAdapter = require('./CryptoAdapter');
-const SaltRepository = require('./SaltRepository');
-const MasterKeyRepository = require('./MasterKeyRepository');
-const CryptoService = require('./CryptoService');
-const DB = require('./Database');
-const Taina = require('./Taina');
-const DropboxSync = require('./sync/DropboxSync');
-const Sync = require('./sync/index');
-const SyncTest = require('./sync/test');
-const Random = require('./helpers/Random');
+import winston from 'winston';
+import CryptoAdapter from './CryptoAdapter';
+import SaltRepository from './SaltRepository';
+import MasterKeyRepository from './MasterKeyRepository';
+import CryptoService from './CryptoService';
+import DB from './Database';
+import Taina from './Taina';
+import DropboxSync from './sync/DropboxSync';
+import Sync from './sync/index';
+import SyncTest from './sync/test';
+import Random from './helpers/Random';
 
 const cryptoAdapter = CryptoAdapter.create();
 const saltRepository = SaltRepository.create(cryptoAdapter);
