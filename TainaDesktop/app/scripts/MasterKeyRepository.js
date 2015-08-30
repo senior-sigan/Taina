@@ -90,4 +90,4 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
   };
 
   return MasterKeyRepository;
-}
+};

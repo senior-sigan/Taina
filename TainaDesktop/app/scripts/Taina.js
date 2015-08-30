@@ -40,7 +40,7 @@ module.exports.create = function(cryptoService, db) {
     return cryptoService.encrypt(body).then(encryptedBody => {
       return db.addNote({
         title: title,
-        body: encryptedBody
+        body: encryptedBody,
       });
     });
   };
@@ -63,15 +63,11 @@ module.exports.create = function(cryptoService, db) {
     }
 
     return Taina.showNote(id).then(() => {
-      if (note.body) {
-        return cryptoService.encrypt(note.body);
-      } else {
-        return null;
-      }
+      if (note.body) cryptoService.encrypt(note.body);
     }).then(encryptedBody => {
       return db.editNote(id, {
         title: note.title,
-        body: encryptedBody
+        body: encryptedBody,
       });
     });
   };
@@ -91,10 +87,10 @@ module.exports.create = function(cryptoService, db) {
       return {
         _id: id,
         title: note.title,
-        body: body
+        body: body,
       };
     });
   };
 
   return Taina;
-}
+};
