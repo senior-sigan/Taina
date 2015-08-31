@@ -1,4 +1,4 @@
-import Promise from 'bluebird';
+import PromiseA from 'bluebird';
 import winston from 'winston';
 import remote from 'remote';
 import moment from 'moment';
@@ -39,7 +39,7 @@ module.exports.create = function(options) {
 
   DropboxSync.getAccountInfo = function() {
     return getClient().then(client => {
-      return new Promise((resolve, reject) => {
+      return new PromiseA((resolve, reject) => {
         client.account((status, data) => {
           if (status === 200) {
             resolve({
@@ -57,7 +57,7 @@ module.exports.create = function(options) {
   DropboxSync.saveData = function(_data) {
     const data = JSON.stringify(_data || EMPTY_DATA, null, ' ');
     return getClient().then(client => {
-      return new Promise((resolve, reject) => {
+      return new PromiseA((resolve, reject) => {
         client.put(DATA_PATH, data, {}, (status, reply) => {
           if (status === 200) {
             winston.info('[DropboxSync] data was saved ' + JSON.stringify(reply));
@@ -73,7 +73,7 @@ module.exports.create = function(options) {
   /**
    * @method bulkSave
    * @param  {Object[]} data
-   * @return {Promise}
+   * @return {PromiseA}
    */
   DropboxSync.bulkSave = function(data) {
     return DropboxSync.saveData({
@@ -84,7 +84,7 @@ module.exports.create = function(options) {
 
   DropboxSync.loadData = function() {
     return getClient().then(client => {
-      return new Promise((resolve, reject) => {
+      return new PromiseA((resolve, reject) => {
         client.get(DATA_PATH, {}, (status, data, metadata) => {
           if (status === 404) {
             winston.info('[DropboxSync] Data file not found ' + DATA_PATH);
@@ -103,9 +103,9 @@ module.exports.create = function(options) {
   /**
    * @method getToken
    * @description Load Dropbox access token from storage. Reject if not found
-   * @return {Promise} accessToken
+   * @return {PromiseA} accessToken
    */
-  DropboxSync.getToken = Promise.method(function() {
+  DropboxSync.getToken = PromiseA.method(function() {
     const accessToken = storage.getItem(DB_KEY);
     if (!accessToken) {
       throw new Error('Dropbox accessToken not found. Get new one.');
@@ -116,7 +116,7 @@ module.exports.create = function(options) {
   /**
    * @method startAuth
    * @description Open new window and start dropbox authentication. Save accessToken in storage.
-   * @return {Promise} dropbox accessToken
+   * @return {PromiseA} dropbox accessToken
    */
   DropboxSync.startAuth = function() {
     let authWindow = new BrowserWindow(browserConfig);
@@ -124,7 +124,7 @@ module.exports.create = function(options) {
       authWindow = null;
     }, false);
 
-    return new Promise((resolve, reject) => {
+    return new PromiseA((resolve, reject) => {
       dboxApp.requesttoken((status, token) => {
         if (status === 200) {
           authWindow.loadUrl(token.authorize_url);
