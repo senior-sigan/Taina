@@ -1,11 +1,9 @@
-'use strict';
-
-const Promise = window.require('bluebird');
-const winston = window.require('winston');
-const remote = window.require('remote');
+import Promise from 'bluebird';
+import winston from 'winston';
+import remote from 'remote';
+import moment from 'moment';
+import dbox from 'dbox';
 const BrowserWindow = remote.require('browser-window');
-const moment = window.require('moment');
-const dbox  = window.require('dbox');
 
 /**
  * create DropboxSync object
@@ -15,9 +13,9 @@ const dbox  = window.require('dbox');
  * @return {DropboxSync}
  */
 module.exports.create = function(options) {
-  const dboxApp = dbox.app({'app_key' : options.key, 'app_secret': options.secret});
+  const dboxApp = dbox.app({'app_key': options.key, 'app_secret': options.secret});
   const DropboxSync = {
-    name: 'Dropbox'
+    name: 'Dropbox',
   };
   const browserConfig = {
     height: 600,
@@ -25,30 +23,28 @@ module.exports.create = function(options) {
     show: false,
     'node-integration': false,
     'web-preferences': {
-      'web-security': true
-    }
+      'web-security': true,
+    },
   };
   const storage = localStorage;
   const DB_KEY = '_taina_dropbox_access_token';
   const DATA_PATH = '/taina.json';
   const EMPTY_DATA = {
-    data: []
+    data: [],
   };
 
   function getClient() {
-    return DropboxSync.getToken().then(function(accessToken) {
-      return dboxApp.client(accessToken);
-    });
+    return DropboxSync.getToken().then(accessToken => dboxApp.client(accessToken));
   }
 
   DropboxSync.getAccountInfo = function() {
-    return getClient().then(function(client) {
-      return new Promise(function(resolve, reject) {
-        client.account(function(status, data) {
+    return getClient().then(client => {
+      return new Promise((resolve, reject) => {
+        client.account((status, data) => {
           if (status === 200) {
             resolve({
               email: data.email,
-              name: data.display_name
+              name: data.display_name,
             });
           } else {
             reject('[DropboxSync] can\'t get account info ' + data.error);
@@ -58,11 +54,11 @@ module.exports.create = function(options) {
     });
   };
 
-  DropboxSync.saveData = function(data) {
-    data = JSON.stringify(data || EMPTY_DATA, null, ' ');
-    return getClient().then(function(client) {
-      return new Promise(function(resolve, reject) {
-        client.put(DATA_PATH, data, {}, function(status, reply) {
+  DropboxSync.saveData = function(_data) {
+    const data = JSON.stringify(_data || EMPTY_DATA, null, ' ');
+    return getClient().then(client => {
+      return new Promise((resolve, reject) => {
+        client.put(DATA_PATH, data, {}, (status, reply) => {
           if (status === 200) {
             winston.info('[DropboxSync] data was saved ' + JSON.stringify(reply));
             resolve(null);
@@ -82,14 +78,14 @@ module.exports.create = function(options) {
   DropboxSync.bulkSave = function(data) {
     return DropboxSync.saveData({
       data: data,
-      lastSync: moment().toISOString()
+      lastSync: moment().toISOString(),
     });
   };
 
   DropboxSync.loadData = function() {
-    return getClient().then(function(client) {
-      return new Promise(function(resolve, reject) {
-        client.get(DATA_PATH, {}, function(status, data, metadata) {
+    return getClient().then(client => {
+      return new Promise((resolve, reject) => {
+        client.get(DATA_PATH, {}, (status, data, metadata) => {
           if (status === 404) {
             winston.info('[DropboxSync] Data file not found ' + DATA_PATH);
             resolve([]);
@@ -110,12 +106,11 @@ module.exports.create = function(options) {
    * @return {Promise} accessToken
    */
   DropboxSync.getToken = Promise.method(function() {
-    let accessToken = storage.getItem(DB_KEY);
-    if (accessToken) {
-      return JSON.parse(accessToken);
-    } else {
-      throw 'Dropbox accessToken not found. Get new one.';
+    const accessToken = storage.getItem(DB_KEY);
+    if (!accessToken) {
+      throw new Error('Dropbox accessToken not found. Get new one.');
     }
+    return JSON.parse(accessToken);
   });
 
   /**
@@ -125,20 +120,20 @@ module.exports.create = function(options) {
    */
   DropboxSync.startAuth = function() {
     let authWindow = new BrowserWindow(browserConfig);
-    authWindow.on('close', function() {
+    authWindow.on('close', () => {
       authWindow = null;
     }, false);
 
-    return new Promise(function(resolve, reject) {
-      dboxApp.requesttoken(function(status, token) {
+    return new Promise((resolve, reject) => {
+      dboxApp.requesttoken((status, token) => {
         if (status === 200) {
           authWindow.loadUrl(token.authorize_url);
           authWindow.show();
-          authWindow.on('page-title-updated', function() {
+          authWindow.on('page-title-updated', () => {
             if (authWindow.getUrl() === 'https://www.dropbox.com/1/oauth/authorize_submit') {
               authWindow.close();
-              dboxApp.accesstoken(token, function(status, accessToken) {
-                if (status === 200) {
+              dboxApp.accesstoken(token, (statusAT, accessToken) => {
+                if (statusAT === 200) {
                   storage.setItem(DB_KEY, JSON.stringify(accessToken));
                   winston.info('[DropboxSync] accessToken loaded');
                   resolve(accessToken);

@@ -1,5 +1,3 @@
-'use strict';
-
 import logger from 'winston';
 import PromiseA from 'bluebird';
 import Random from './helpers/Random';
@@ -11,7 +9,7 @@ import Random from './helpers/Random';
 module.exports.create = function() {
   const DB = {};
   const Notes = new window.PouchDB('notes', {
-    adapter: 'idb'
+    adapter: 'idb',
   });
 
   /**
@@ -36,11 +34,11 @@ module.exports.create = function() {
             _rev: doc._rev,
             revision: doc.revision,
             remoteRevision: doc.remoteRevision,
-            data: doc.data
+            data: doc.data,
           };
         });
       }).then(notes => {
-        console.log(notes);
+        logger.info(JSON.stringify(notes, null, ' '));
         return notes;
       });
     }).catch(err => {
@@ -66,8 +64,8 @@ module.exports.create = function() {
       remoteRevision: null,
       data: {
         title: note.title,
-        body: note.body
-      }
+        body: note.body,
+      },
     }).then(result => {
       logger.debug(JSON.stringify(result, null, ' '));
       return result;
@@ -88,7 +86,7 @@ module.exports.create = function() {
   DB.getNote = function(id) {
     return Notes.get(id, {
       attachments: true,
-      revs: true
+      revs: true,
     }).then(note => {
       logger.info(JSON.stringify(note, null, ' '));
       return note;
@@ -107,17 +105,16 @@ module.exports.create = function() {
    */
   DB.editNote = function(id, note) {
     return Notes.get(id).then(doc => {
-      let changes = {
+      const changes = {
         _id: id,
         _rev: doc._rev,
         revision: Random.nextRevision(doc.remoteRevision),
         remoteRevision: doc.remoteRevision,
         data: {
           title: note.title || doc.title,
-          body: note.body || doc.body
-        }
+          body: note.body || doc.body,
+        },
       };
-      console.log(changes);
 
       return Notes.put(changes).then(result => {
         logger.debug(JSON.stringify(result, null, ' '));
@@ -138,7 +135,7 @@ module.exports.create = function() {
         doc._rev = d._rev;
         return doc;
       }).catch(err => {
-        console.log(err);
+        logger.error(JSON.stringify(err, null, ' '));
         return doc;
       });
     }).then(docs => {
@@ -151,7 +148,7 @@ module.exports.create = function() {
     return Notes.destroy().then(() => {
       logger.info('Database destroyed');
       indexedDB.deleteDatabase('_pouch_notes');
-    }).catch(function(err) {
+    }).catch(err => {
       logger.error('Database#drop failed: %s', JSON.stringify(err, null, ' '));
       throw err;
     });

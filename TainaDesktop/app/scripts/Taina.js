@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Main module that used as interface to the all application.
  * @module Taina
