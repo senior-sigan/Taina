@@ -1,13 +1,12 @@
-'use strict';
+import Promise from 'bluebird';
+import Crypto from 'crypto';
+const CryptoAsync = Promise.promisifyAll(Crypto);
 
 /**
  * Adapter over nodejs Crypto service.
  * Contain all setings for cryptographic algorithms, key's size.
  * @module CryptoAdapter
  **/
-
-const Promise = window.require('bluebird');
-const Crypto = Promise.promisifyAll(window.require('crypto'));
 
 /**
  * create CryptoAdapter object
@@ -28,10 +27,8 @@ module.exports.create = function() {
    * @return {Promise} password hash with salt as string in hex format
    */
   CryptoAdapter.generateHashFromPassword = function(password, hSalt) {
-    let bSalt = new Buffer(hSalt, 'hex');
-    return Crypto.pbkdf2Async(password, bSalt, 4096, 32, HASH_ALGORITHM).then(function(hash) {
-      return hash.toString('hex');
-    });
+    const bSalt = new Buffer(hSalt, 'hex');
+    return CryptoAsync.pbkdf2Async(password, bSalt, 4096, 32, HASH_ALGORITHM).then(hash => hash.toString('hex'));
   };
 
   /**
@@ -39,9 +36,7 @@ module.exports.create = function() {
    * @return {Promise} salt as string in hex format
    */
   CryptoAdapter.generateSalt = function() {
-    return Crypto.randomBytesAsync(SALT_SIZE).then(function(salt) {
-      return salt.toString('hex');
-    });
+    return CryptoAsync.randomBytesAsync(SALT_SIZE).then(salt => salt.toString('hex'));
   };
 
   /**
@@ -52,14 +47,14 @@ module.exports.create = function() {
    *                          and initialization vector as string in hex format
    */
   CryptoAdapter.encrypt = function(data, hKey) {
-    let bKey = new Buffer(hKey, 'hex');
-    return Crypto.randomBytesAsync(IV_SIZE).then(function(iv) {
-      let cipher = Crypto.createCipheriv(ENCRYPTION_ALGORITHM, bKey, iv);
-      let enc = cipher.update(data, 'utf8', 'hex') + cipher.final('hex');
+    const bKey = new Buffer(hKey, 'hex');
+    return CryptoAsync.randomBytesAsync(IV_SIZE).then(iv => {
+      const cipher = CryptoAsync.createCipheriv(ENCRYPTION_ALGORITHM, bKey, iv);
+      const enc = cipher.update(data, 'utf8', 'hex') + cipher.final('hex');
 
       return {
         data: enc,
-        iv: iv.toString('hex')
+        iv: iv.toString('hex'),
       };
     });
   };
@@ -72,11 +67,11 @@ module.exports.create = function() {
    * @return {Promise} open data as string
    */
   CryptoAdapter.decrypt = function(data, hIv, hKey) {
-    let bKey = new Buffer(hKey, 'hex');
-    let bIv = new Buffer(hIv, 'hex');
+    const bKey = new Buffer(hKey, 'hex');
+    const bIv = new Buffer(hIv, 'hex');
 
-    let decipher = Crypto.createDecipheriv(ENCRYPTION_ALGORITHM, bKey, bIv);
-    let dec = decipher.update(data, 'hex', 'utf8') + decipher.final('utf8');
+    const decipher = CryptoAsync.createDecipheriv(ENCRYPTION_ALGORITHM, bKey, bIv);
+    const dec = decipher.update(data, 'hex', 'utf8') + decipher.final('utf8');
 
     return Promise.resolve(dec);
   };

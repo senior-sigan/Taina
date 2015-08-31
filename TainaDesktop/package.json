@@ -14,7 +14,9 @@
   },
   "devDependencies": {
     "electron-prebuilt": "^0.30.4",
-    "jshint": "^2.8.0",
+    "eslint-config-airbnb": "0.0.8",
+    "eslint-plugin-react": "^3.3.0",
+    "babel-eslint": "^4.1.0",
     "react-tools": "^0.13.3"
   }
 }

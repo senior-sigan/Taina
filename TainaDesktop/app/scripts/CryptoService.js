@@ -1,6 +1,4 @@
-'use strict';
-
-const logger = window.require('winston');
+import logger from 'winston';
 
 /**
  * create CryptoService object
@@ -20,9 +18,7 @@ module.exports.create = function(masterKeyRepository, cryptoAdapter) {
    * @return {Promise} encrypted data as string in hex format
    */
   CryptoService.encrypt = function(data) {
-    return masterKeyRepository.getKey().then(function(key) {
-      return cryptoAdapter.encrypt(data, key);
-    });
+    return masterKeyRepository.getKey().then(key => cryptoAdapter.encrypt(data, key));
   };
 
   /**
@@ -38,9 +34,7 @@ module.exports.create = function(masterKeyRepository, cryptoAdapter) {
       logger.warn('CryptoService.decrypt - input data is empty');
       return null;
     }
-    return masterKeyRepository.getKey().then(function(key) {
-      return cryptoAdapter.decrypt(data.data, data.iv, key);
-    });
+    return masterKeyRepository.getKey().then(key => cryptoAdapter.decrypt(data.data, data.iv, key));
   };
 
   return CryptoService;

@@ -1,19 +1,19 @@
-/*jshint ignore:start */
+import React from 'react';
+
 const LoginComponent = React.createClass({
-  handleSubmit: function(e) {
-    e.preventDefault();
-    var masterKey = React.findDOMNode(this.refs.masterKey).value.trim();
-    console.log(masterKey);
-  },
-  render: function() {
+  render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <input type='password' ref='masterKey' />
-        <input type='submit' value='Login' />
+        <input type="password" ref="masterKey" />
+        <input type="submit" value="Login" />
       </form>
     );
-  }
+  },
+  handleSubmit(e) {
+    e.preventDefault();
+    const masterKey = React.findDOMNode(this.refs.masterKey).value.trim();
+    console.log(masterKey);
+  },
 });
 
 module.exports = LoginComponent;
-/*jshint ignore:end */
