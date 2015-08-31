@@ -1,4 +1,4 @@
-import Promise from 'bluebird';
+import PromiseA from 'bluebird';
 import logger from 'winston';
 import _ from 'lodash';
 
@@ -17,18 +17,18 @@ module.exports.create = function(db, syncServices, Random) {
     const loadRemoteData = syncService.loadData();
     const loadLocalData = db.getAllNotes();
 
-    return Promise.join(loadRemoteData, loadLocalData, (remoteData, localData) => {
+    return PromiseA.join(loadRemoteData, loadLocalData, (remoteData, localData) => {
       const merged = Sync.merge(remoteData, localData);
       const bulkUpdating = db.bulkUpdate(merged.localData);
       const remoteBulkSaving = syncService.bulkSave(merged.remoteData);
-      return Promise.all([bulkUpdating, remoteBulkSaving]);
+      return PromiseA.all([bulkUpdating, remoteBulkSaving]);
     }).then(() => {
       logger.info('All data saved and synchronized in ' + syncService.name);
     });
   };
 
   Sync.run = function() {
-    return Promise
+    return PromiseA
       .map(syncServices, service => Sync.runOne(service))
       .then(() => logger.info('Synchronization was completed'));
   };
