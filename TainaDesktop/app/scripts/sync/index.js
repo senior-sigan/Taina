@@ -1,8 +1,6 @@
-'use strict';
-
-const Promise = window.require('bluebird');
-const logger = window.require('winston');
-const _ = window.require('lodash');
+import Promise from 'bluebird';
+import logger from 'winston';
+import _ from 'lodash';
 
 /**
  * create Synch object
@@ -16,25 +14,23 @@ module.exports.create = function(db, syncServices, Random) {
   const Sync = {};
 
   Sync.runOne = function(syncService) {
-    let loadRemoteData = syncService.loadData();
-    let loadLocalData = db.getAllNotes();
+    const loadRemoteData = syncService.loadData();
+    const loadLocalData = db.getAllNotes();
 
-    return Promise.join(loadRemoteData, loadLocalData, function(remoteData, localData) {
-      let merged = Sync.merge(remoteData,localData);
-      let bulkUpdating = db.bulkUpdate(merged.localData);
-      let remoteBulkSaving = syncService.bulkSave(merged.remoteData);
+    return Promise.join(loadRemoteData, loadLocalData, (remoteData, localData) => {
+      const merged = Sync.merge(remoteData, localData);
+      const bulkUpdating = db.bulkUpdate(merged.localData);
+      const remoteBulkSaving = syncService.bulkSave(merged.remoteData);
       return Promise.all([bulkUpdating, remoteBulkSaving]);
-    }).then(function() {
+    }).then(() => {
       logger.info('All data saved and synchronized in ' + syncService.name);
     });
   };
 
   Sync.run = function() {
-    return Promise.map(syncServices, function(service) {
-      return Sync.runOne(service);
-    }).then(function() {
-      logger.info('Synchronization was completed');
-    });
+    return Promise
+      .map(syncServices, service => Sync.runOne(service))
+      .then(() => logger.info('Synchronization was completed'));
   };
 
   /**
@@ -62,35 +58,31 @@ module.exports.create = function(db, syncServices, Random) {
    * @return {{remoteData: RemoteData[], localData: LocalData[]}}
    */
   Sync.merge = function(remoteData, localData) {
-    let indexedRemoteData = _.indexBy(remoteData, '_id');
-    let localChanges = _.filter(localData, function(doc) {
-      // if remote and local revisions are different so object was changed
-      return doc.remoteRevision !== doc.revision;
-    });
-    let localUnchanged = _.filter(localData, function(doc) {
-      return doc.remoteRevision === doc.revision;
-    });
+    const indexedRemoteData = _.indexBy(remoteData, '_id');
+    // if remote and local revisions are different so object was changed
+    const localChanges = _.filter(localData, doc => doc.remoteRevision !== doc.revision);
+    const localUnchanged = _.filter(localData, doc => doc.remoteRevision === doc.revision);
 
-    _.forEach(localUnchanged, function(doc) {
-      let id = doc._id;
+    _.forEach(localUnchanged, doc => {
+      const id = doc._id;
       if (!indexedRemoteData[id]) {
         indexedRemoteData[id] = {
           _id: id,
           revision: doc.revision,
           revisions: [{
             revision: doc.revision,
-            data: doc.data
-          }]
+            data: doc.data,
+          }],
         };
       }
     });
 
-    _.forEach(localChanges, function(doc) {
+    _.forEach(localChanges, doc => {
       if (indexedRemoteData[doc._id] && indexedRemoteData[doc._id].revision === doc.remoteRevision) {
         // remote data has no changes, so just add new changes
         indexedRemoteData[doc._id].revisions.push({
           revision: doc.revision,
-          data: doc.data
+          data: doc.data,
         });
         indexedRemoteData[doc._id].revision = doc.revision;
       } else {
@@ -105,27 +97,27 @@ module.exports.create = function(db, syncServices, Random) {
           revision: doc.revision,
           revisions: [{
             revision: doc.revision,
-            data: doc.data
-          }]
+            data: doc.data,
+          }],
         };
       }
     });
 
-    let newLocalData = [];
-    let newRemoteData = [];
-    _.forEach(indexedRemoteData, function(doc) {
+    const newLocalData = [];
+    const newRemoteData = [];
+    _.forEach(indexedRemoteData, doc => {
       newRemoteData.push(doc);
       newLocalData.push({
         _id: doc._id,
         remoteRevision: doc.revision,
         revision: doc.revision,
-        data: doc.revisions[doc.revisions.length - 1].data
+        data: doc.revisions[doc.revisions.length - 1].data,
       });
     });
 
     return {
       localData: newLocalData,
-      remoteData: newRemoteData
+      remoteData: newRemoteData,
     };
   };
 

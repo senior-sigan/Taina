@@ -1,5 +1,3 @@
-'use strict';
-
 import winston from 'winston';
 import CryptoAdapter from './CryptoAdapter';
 import SaltRepository from './SaltRepository';
@@ -20,7 +18,7 @@ const db = DB.create();
 window.db = db;
 const taina = Taina.create(cryptoService, db);
 window.taina = taina;
-const dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret:'7bm6qlat09zs8ro'});
+const dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret: '7bm6qlat09zs8ro'});
 window.dbs = dbs;
 const sync = Sync.create(db, [dbs], Random);
 window.sync = sync;
@@ -30,22 +28,22 @@ syncTest.run();
 // TEST
 let key = null;
 winston.info('>>> START TEST');
-masterKeyRepository.getKey().then(function(_key) {
+masterKeyRepository.getKey().then(_key => {
   winston.info('Key loaded', _key);
   return _key;
-}).catch(function() {
+}).catch(() => {
   winston.info('Creating new key');
-  return masterKeyRepository.saveKey('qwerty').then(function(_key) {
+  return masterKeyRepository.saveKey('qwerty').then(_key => {
     winston.info('New key created', _key);
     return _key;
   });
-}).then(function(_key) {
+}).then(_key => {
   key = _key;
   return cryptoAdapter.encrypt('Hello World!!', key);
-}).then(function(dataWithIV) {
+}).then(dataWithIV => {
   winston.info(dataWithIV);
   return cryptoAdapter.decrypt(dataWithIV.data, dataWithIV.iv, key);
-}).then(function(openText) {
+}).then(openText => {
   winston.info(openText);
   winston.info('<<< TEST COMPLETE');
 });

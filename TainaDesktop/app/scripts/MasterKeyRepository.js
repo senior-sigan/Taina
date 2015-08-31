@@ -1,5 +1,3 @@
-'use strict';
-
 import PromiseA from 'bluebird';
 import _ from 'lodash';
 
@@ -28,15 +26,14 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
    * @description load master key from secter storage. Raise error if not found.
    * @return {PromiseA} secret master key as string
    */
-  MasterKeyRepository.getKey = function() {
-    let key = storage.getItem(MASTER_KEY_KEY);
-    if (key) {
-      return PromiseA.resolve(key);
-    } else {
-      return PromiseA.reject('Master key not found. Generate new.');
+  MasterKeyRepository.getKey = PromiseA.method(() => {
+    const key = storage.getItem(MASTER_KEY_KEY);
+    if (!key) {
+      throw new Error('Master key not found. Generate new.');
     }
-  };
 
+    return key;
+  });
   /**
    * @method generateKey
    * @description generate master key from password with random generated or founded in storage salt
