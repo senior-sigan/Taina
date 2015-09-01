@@ -14,10 +14,12 @@
   },
   "main": "scripts/browser/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron .",
+    "test": "npm run build-test-js;electron scripts/browser/spec.js",
+    "start": "npm run build-js;electron .",
     "build-js": "browserify --no-bundle-external scripts/index.js -o scripts/bundle.js",
-    "watch-js": "watchify --no-bundle-external scripts/index.js -o scripts/bundle.js -v"
+    "watch-js": "watchify --no-bundle-external scripts/index.js -o scripts/bundle.js -v",
+    "build-test-js": "browserify --no-bundle-external scripts/**/*.spec.js -o scripts/bundle.spec.js",
+    "watch-test-js": "watchify --no-bundle-external scripts/**/*.spec.js -o scripts/bundle.spec.js -v"
   },
   "dependencies": {
     "bluebird": "^2.9.34",
@@ -32,6 +34,8 @@
   "devDependencies": {
     "babelify": "^6.2.0",
     "browserify": "^11.0.1",
+    "chai": "^3.2.0",
+    "mocha": "^2.3.0",
     "watchify": "^3.3.1"
   },
   "browserify": {
