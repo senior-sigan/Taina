@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mocha tests</title>
+    <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+    <!-- force using indexed DB instead of nodejs leveldb -->
+    <script src="node_modules/pouchdb/dist/pouchdb.js"></script>
+    <script src="node_modules/mocha/mocha.js"></script>
+  </head>
+  <body>
+    <!-- ORDER IS VERY IMPORTANT -->
+    <div id="mocha"></div>
+    <script>mocha.setup('bdd');</script>
+    <script src="scripts/bundle.spec.js"></script>
+    <script>
+      mocha.run();
+    </script>
+  </body>
+</html>
