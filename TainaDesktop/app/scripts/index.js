@@ -7,8 +7,8 @@ import DB from './Database';
 import Taina from './Taina';
 import DropboxSync from './sync/DropboxSync';
 import Sync from './sync/index';
-import SyncTest from './sync/test';
 import Random from './helpers/Random';
+import Merger from './sync/Merger';
 
 const cryptoAdapter = CryptoAdapter.create();
 const saltRepository = SaltRepository.create(cryptoAdapter);
@@ -20,10 +20,9 @@ const taina = Taina.create(cryptoService, db);
 window.taina = taina;
 const dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret: '7bm6qlat09zs8ro'});
 window.dbs = dbs;
-const sync = Sync.create(db, [dbs], Random);
+const merger = Merger.create(Random);
+const sync = Sync.create(db, [dbs], merger);
 window.sync = sync;
-const syncTest = SyncTest.create(sync);
-syncTest.run();
 
 // TEST
 let key = null;
