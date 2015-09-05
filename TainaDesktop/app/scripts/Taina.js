@@ -13,7 +13,7 @@ import logger from 'winston';
  * @param  {DB} db
  * @return {Taina}
  */
-module.exports.create = function(cryptoService, db) {
+module.exports.create = (cryptoService, db, saltRepository, masterKeyRepository, sync) => {
   if (!cryptoService) throw new Error('Taina: missing CryptoService dependecy');
   if (!db) throw new Error('Taina: missing DataBase dependency');
   const Taina = {};
@@ -23,7 +23,7 @@ module.exports.create = function(cryptoService, db) {
    * @description get array of all notes. All data exept body is open. Body is encrypted.
    * @return {PromiseA} array of notes
    */
-  Taina.getNotes = function() {
+  Taina.getNotes = () => {
     return db.getAllNotes();
   };
 
@@ -34,7 +34,7 @@ module.exports.create = function(cryptoService, db) {
    * @param  {string} body - this will be encrypted
    * @return {PromiseA}
    */
-  Taina.addNote = function(title, body) {
+  Taina.addNote = (title, body) => {
     return cryptoService.encrypt(body).then(encryptedBody => {
       return db.addNote({
         title: title,
@@ -51,7 +51,7 @@ module.exports.create = function(cryptoService, db) {
    * @param  {string} note.body
    * @return {PromiseA}
    */
-  Taina.editNote = function(id, note) {
+  Taina.editNote = (id, note) => {
     if (!_.isObject(note)) {
       return PromiseA.reject('Note argument should be object');
     }
@@ -76,7 +76,7 @@ module.exports.create = function(cryptoService, db) {
    * @param  {string} id
    * @return {PromiseA} decrypted note
    */
-  Taina.showNote = function(id) {
+  Taina.showNote = (id) => {
     let note = {};
     return db.getNote(id).then(_note => {
       note = _note.data;
@@ -88,6 +88,28 @@ module.exports.create = function(cryptoService, db) {
         body: body,
       };
     });
+  };
+
+  Taina.clearAll = () => {
+    return PromiseA.join(saltRepository.clear(), masterKeyRepository.clear(), db.drop());
+  };
+
+  Taina.initFromScratch = () => {
+    return saltRepository.findOrCreate();
+  };
+
+  Taina.initFromRemote = (serviceName) => {
+    return sync.getSalt(serviceName).then(salt => {
+      if (salt) {
+        saltRepository.save(salt);
+      } else {
+        throw new Error('Remote service has no data');
+      }
+    });
+  };
+
+  Taina.login = (password) => {
+    return masterKeyRepository.saveKey(password);
   };
 
   return Taina;

@@ -24,6 +24,8 @@ const merger = Merger.create(Random);
 const sync = Sync.create(db, [dbs], merger);
 window.sync = sync;
 
+require('./components/app.jsx');
+
 // TEST
 let key = null;
 winston.info('>>> START TEST');

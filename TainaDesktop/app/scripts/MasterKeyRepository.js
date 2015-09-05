@@ -7,7 +7,7 @@ import _ from 'lodash';
  * @param  {CryptoAdapter} cryptoAdapter
  * @return {MasterKeyRepository}
  */
-module.exports.create = function(saltRepository, cryptoAdapter) {
+module.exports.create = (saltRepository, cryptoAdapter) => {
   if (!saltRepository) throw Error('MasterKeyRepository: mising SaltRepository dependency');
   if (!cryptoAdapter) throw Error('MasterKeyRepository: missing CryptoAdapter dependency');
 
@@ -41,13 +41,13 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
    * @param  {string} password
    * @return {PromiseA} master key
    */
-  MasterKeyRepository.generateKey = function(password) {
+  MasterKeyRepository.generateKey = (password) => {
     return saltRepository.findOrCreate().then(salt => {
       return cryptoAdapter.generateHashFromPassword(password, salt);
     });
   };
 
-  MasterKeyRepository.validatePassword = function(password) {
+  MasterKeyRepository.validatePassword = (password) => {
     const MIN_PASSWORD_LENGTH = 6;
     const MAX_PASSWORD_LENGTH = 256;
 
@@ -77,7 +77,9 @@ module.exports.create = function(saltRepository, cryptoAdapter) {
    * @param  {string} password
    * @return {PromiseA} master key
    */
-  MasterKeyRepository.saveKey = function(password) {
+  MasterKeyRepository.saveKey = (password) => {
+    // TODO: check password
+    // TODO: save password
     return MasterKeyRepository.validatePassword(password).then(() => {
       return MasterKeyRepository.generateKey(password);
     }).then(key => {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LoginComponent = React.createClass({
+export default class Login extends React.Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
@@ -8,12 +8,11 @@ const LoginComponent = React.createClass({
         <input type="submit" value="Login" />
       </form>
     );
-  },
+  }
+
   handleSubmit(e) {
     e.preventDefault();
     const masterKey = React.findDOMNode(this.refs.masterKey).value.trim();
     console.log(masterKey);
-  },
-});
-
-module.exports = LoginComponent;
+  }
+}
