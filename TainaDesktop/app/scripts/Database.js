@@ -6,7 +6,7 @@ import Random from './helpers/Random';
  * create Database object
  * @return {DB} Database module
  */
-module.exports.create = function() {
+module.exports.create = () => {
   const DB = {};
   const Notes = new window.PouchDB('notes', {
     adapter: 'idb',
@@ -25,7 +25,7 @@ module.exports.create = function() {
    *  }[]
    * } PromiseA with array of notes
    */
-  DB.getAllNotes = function() {
+  DB.getAllNotes = () => {
     return Notes.allDocs().then(result => {
       return PromiseA.map(result.rows, row => {
         return DB.getNote(row.id).then(doc => {
@@ -57,7 +57,7 @@ module.exports.create = function() {
    * @param  {string} note.body.iv - initialization vector
    * @return {PromiseA} note object
    */
-  DB.addNote = function(note) {
+  DB.addNote = (note) => {
     return Notes.put({
       _id: Random.uuid(),
       revision: Random.nextRevision(),
@@ -83,7 +83,7 @@ module.exports.create = function() {
    * @param  {string} id - id of note
    * @return {PromiseA} note
    */
-  DB.getNote = function(id) {
+  DB.getNote = (id) => {
     return Notes.get(id, {
       attachments: true,
       revs: true,
@@ -103,7 +103,7 @@ module.exports.create = function() {
    * @param  {string} note.body.iv - initialization vector
    * @return {PromiseA}
    */
-  DB.editNote = function(id, note) {
+  DB.editNote = (id, note) => {
     return Notes.get(id).then(doc => {
       const changes = {
         _id: id,
@@ -129,7 +129,7 @@ module.exports.create = function() {
     });
   };
 
-  DB.bulkUpdate = function(data) {
+  DB.bulkUpdate = (data) => {
     return PromiseA.map(data, doc => {
       return Notes.get(doc._id).then(d => {
         doc._rev = d._rev;
@@ -144,7 +144,7 @@ module.exports.create = function() {
     });
   };
 
-  DB.drop = function() {
+  DB.drop = () => {
     return Notes.destroy().then(() => {
       logger.info('Database destroyed');
       indexedDB.deleteDatabase('_pouch_notes');

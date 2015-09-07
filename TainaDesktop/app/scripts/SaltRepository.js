@@ -9,7 +9,7 @@ import PromiseA from 'bluebird';
  * @param  {CryptoAdapter} cryptoAdapter
  * @return {SaltRepository}
  */
-module.exports.create = function(cryptoAdapter) {
+module.exports.create = (cryptoAdapter) => {
   if (!cryptoAdapter) throw Error('SaltRepository: missing CryptoAdapter dependency');
 
   const SaltRepository = {};
@@ -27,7 +27,7 @@ module.exports.create = function(cryptoAdapter) {
    * @description find salt in repository or randomly generate new one
    * @return {PromiseA} salt as string
    */
-  SaltRepository.findOrCreate = function() {
+  SaltRepository.findOrCreate = () => {
     const salt = storage.getItem(SALT_KEY);
 
     if (salt) {
