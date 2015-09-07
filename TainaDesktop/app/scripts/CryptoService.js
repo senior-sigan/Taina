@@ -6,7 +6,7 @@ import logger from 'winston';
  * @param  {CryptoAdapter} cryptoAdapter
  * @return {CryptoService}
  */
-module.exports.create = function(masterKeyRepository, cryptoAdapter) {
+module.exports.create = (masterKeyRepository, cryptoAdapter) => {
   if (!masterKeyRepository) throw new Error('CryptoService: missing MasterKeyRepository dependency');
   if (!cryptoAdapter) throw new Error('CryptoService: missing CryptoAdapter dependency');
   const CryptoService = {};
@@ -17,7 +17,7 @@ module.exports.create = function(masterKeyRepository, cryptoAdapter) {
    * @param  {string} data - open data as string
    * @return {Promise} encrypted data as string in hex format
    */
-  CryptoService.encrypt = function(data) {
+  CryptoService.encrypt = (data) => {
     return masterKeyRepository.getKey().then(key => cryptoAdapter.encrypt(data, key));
   };
 
@@ -29,7 +29,7 @@ module.exports.create = function(masterKeyRepository, cryptoAdapter) {
    * @param  {string} data.iv - initialization vector for aes-256
    * @return {Promise} open data as string
    */
-  CryptoService.decrypt = function(data) {
+  CryptoService.decrypt = (data) => {
     if (!data || !data.data || !data.iv) {
       logger.warn('CryptoService.decrypt - input data is empty');
       return null;

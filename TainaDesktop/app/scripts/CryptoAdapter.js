@@ -12,7 +12,7 @@ const CryptoAsync = Promise.promisifyAll(Crypto);
  * create CryptoAdapter object
  * @return {CryptoAdapter}
  */
-module.exports.create = function() {
+module.exports.create = () => {
   const CryptoAdapter = {};
 
   const HASH_ALGORITHM = 'sha1';
@@ -26,7 +26,7 @@ module.exports.create = function() {
    * @param  {string} hSalt - salt as string in hex format
    * @return {Promise} password hash with salt as string in hex format
    */
-  CryptoAdapter.generateHashFromPassword = function(password, hSalt) {
+  CryptoAdapter.generateHashFromPassword = (password, hSalt) => {
     const bSalt = new Buffer(hSalt, 'hex');
     return CryptoAsync.pbkdf2Async(password, bSalt, 4096, 32, HASH_ALGORITHM).then(hash => hash.toString('hex'));
   };
@@ -35,7 +35,7 @@ module.exports.create = function() {
    * @method generateSalt
    * @return {Promise} salt as string in hex format
    */
-  CryptoAdapter.generateSalt = function() {
+  CryptoAdapter.generateSalt = () => {
     return CryptoAsync.randomBytesAsync(SALT_SIZE).then(salt => salt.toString('hex'));
   };
 
@@ -46,7 +46,7 @@ module.exports.create = function() {
    * @return {Promise} object with encrypted data as string in hex format
    *                          and initialization vector as string in hex format
    */
-  CryptoAdapter.encrypt = function(data, hKey) {
+  CryptoAdapter.encrypt = (data, hKey) => {
     const bKey = new Buffer(hKey, 'hex');
     return CryptoAsync.randomBytesAsync(IV_SIZE).then(iv => {
       const cipher = CryptoAsync.createCipheriv(ENCRYPTION_ALGORITHM, bKey, iv);
@@ -66,7 +66,7 @@ module.exports.create = function() {
    * @param  {string} hKey - key in hex format
    * @return {Promise} open data as string
    */
-  CryptoAdapter.decrypt = function(data, hIv, hKey) {
+  CryptoAdapter.decrypt = (data, hIv, hKey) => {
     const bKey = new Buffer(hKey, 'hex');
     const bIv = new Buffer(hIv, 'hex');
 
