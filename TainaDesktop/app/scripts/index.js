@@ -16,15 +16,15 @@ const masterKeyRepository = MasterKeyRepository.create(saltRepository, cryptoAda
 const cryptoService = CryptoService.create(masterKeyRepository, cryptoAdapter);
 const db = DB.create();
 window.db = db;
-const taina = Taina.create(cryptoService, db);
-window.taina = taina;
 const dbs = DropboxSync.create({key: '0bznfxkploq3khs', secret: '7bm6qlat09zs8ro'});
 window.dbs = dbs;
 const merger = Merger.create(Random);
 const sync = Sync.create(db, [dbs], merger);
 window.sync = sync;
+const taina = Taina.create(cryptoService, db, saltRepository, masterKeyRepository, sync);
+window.taina = taina;
 
-require('./components/app.jsx');
+require('./components/app.jsx').create(taina);
 
 // TEST
 let key = null;

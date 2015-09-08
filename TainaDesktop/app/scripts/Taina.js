@@ -16,6 +16,9 @@ import logger from 'winston';
 module.exports.create = (cryptoService, db, saltRepository, masterKeyRepository, sync) => {
   if (!cryptoService) throw new Error('Taina: missing CryptoService dependecy');
   if (!db) throw new Error('Taina: missing DataBase dependency');
+  if (!saltRepository) throw new Error('Taina: missing saltRepository dependency');
+  if (!masterKeyRepository) throw new Error('Taina: missing masterKeyRepository dependency');
+  if (!sync) throw new Error('Taina: missing sync dependency');
   const Taina = {};
 
   /**
