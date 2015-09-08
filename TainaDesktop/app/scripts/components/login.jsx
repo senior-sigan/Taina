@@ -1,11 +1,9 @@
 import React from 'react';
+import Router from 'react-router';
 
 module.exports.create = (taina) => {
-  class Login extends React.Component {
-    constructor() {
-      super();
-      this.handleSubmit = this.handleSubmit.bind(this);
-    }
+  const Login = React.createClass({
+    mixins: [Router.Navigation],
 
     handleSubmit(e) {
       e.preventDefault();
@@ -13,10 +11,11 @@ module.exports.create = (taina) => {
       taina.login(masterKey.value.trim()).then(() => {
         console.log('logged in');
         masterKey.value = null;
+        this.transitionTo('/dashboard');
       }).catch(err => {
         console.log(err);
       });
-    }
+    },
 
     render() {
       return (
@@ -25,8 +24,8 @@ module.exports.create = (taina) => {
           <input type="submit" value="Login" />
         </form>
       );
-    }
-  }
+    },
+  });
 
   return Login;
 };

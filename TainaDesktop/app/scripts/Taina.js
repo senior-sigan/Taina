@@ -112,7 +112,9 @@ module.exports.create = (cryptoService, db, saltRepository, masterKeyRepository,
   };
 
   Taina.login = (password) => {
-    return masterKeyRepository.saveKey(password);
+    return masterKeyRepository.saveKey(password).then(key => {
+      cryptoService
+    });
   };
 
   return Taina;
