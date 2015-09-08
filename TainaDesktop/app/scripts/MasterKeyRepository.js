@@ -13,6 +13,7 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
 
   const MasterKeyRepository = {};
   const storage = sessionStorage;
+  const standardStorage = localStorage;
 
   /**
    * Key in the secure storage for masterKey value
@@ -20,6 +21,14 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
    * @type {String}
    */
   const MASTER_KEY_KEY = '_taina_master-key';
+
+  /**
+   * Key in the local storage for standardKey value.
+   * Used to validate password.
+   * @const
+   * @type {String}
+   */
+  const STANDARD_KEY = '_taina_standard-key';
 
   /**
    * @method getKey
@@ -70,6 +79,23 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
     return PromiseA.resolve(null);
   };
 
+  MasterKeyRepository.checkOrCreateStandard = (key) => {
+    return new PromiseA((resolve, reject) => {
+      const standard = JSON.parse(standardStorage.getItem(STANDARD_KEY));
+      console.log('Validating password');
+      if (standard && standard.data && standard.iv) {
+        console.log(`Find standard ${standard.data}:${standard.iv}`);
+        cryptoAdapter.decrypt(standard.data, standard.iv, key).then(() => resolve(key));
+      } else {
+        console.log('Generate new standard');
+        cryptoAdapter.generateSalt()
+          .then(salt => cryptoAdapter.encrypt(salt, key))
+          .then(data => standardStorage.setItem(STANDARD_KEY, JSON.stringify(data)))
+          .then(() => resolve(key));
+      }
+    });
+  };
+
   /**
    * @method saveKey
    * @description generate key and save in secure storage
@@ -78,14 +104,14 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
    * @return {PromiseA} master key
    */
   MasterKeyRepository.saveKey = (password) => {
-    // TODO: check password
-    // TODO: save password
-    return MasterKeyRepository.validatePassword(password).then(() => {
-      return MasterKeyRepository.generateKey(password);
-    }).then(key => {
-      storage.setItem(MASTER_KEY_KEY, key);
-      return key;
-    });
+    return MasterKeyRepository
+      .validatePassword(password)
+      .then(() => MasterKeyRepository.generateKey(password))
+      .then(MasterKeyRepository.checkOrCreateStandard)
+      .then(key => {
+        storage.setItem(MASTER_KEY_KEY, key);
+        return key;
+      });
   };
 
   return MasterKeyRepository;
