@@ -1,5 +1,6 @@
 import PromiseA from 'bluebird';
 import _ from 'lodash';
+import logger from 'winston';
 
 /**
  * create MasterKeyRepository object
@@ -79,22 +80,20 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
     return PromiseA.resolve(null);
   };
 
-  MasterKeyRepository.checkOrCreateStandard = (key) => {
-    return new PromiseA((resolve, reject) => {
-      const standard = JSON.parse(standardStorage.getItem(STANDARD_KEY));
-      console.log('Validating password');
-      if (standard && standard.data && standard.iv) {
-        console.log(`Find standard ${standard.data}:${standard.iv}`);
-        cryptoAdapter.decrypt(standard.data, standard.iv, key).then(() => resolve(key));
-      } else {
-        console.log('Generate new standard');
-        cryptoAdapter.generateSalt()
-          .then(salt => cryptoAdapter.encrypt(salt, key))
-          .then(data => standardStorage.setItem(STANDARD_KEY, JSON.stringify(data)))
-          .then(() => resolve(key));
-      }
-    });
-  };
+  MasterKeyRepository.checkOrCreateStandard = PromiseA.method((key) => {
+    const standard = JSON.parse(standardStorage.getItem(STANDARD_KEY));
+    logger.info('Validating password');
+    if (standard && standard.data && standard.iv) {
+      logger.info(`Find standard ${standard.data}:${standard.iv}`);
+      return cryptoAdapter.decrypt(standard.data, standard.iv, key).then(() => key);
+    }
+
+    logger.info('Generate new standard');
+    return cryptoAdapter.generateSalt()
+      .then(salt => cryptoAdapter.encrypt(salt, key))
+      .then(data => standardStorage.setItem(STANDARD_KEY, JSON.stringify(data)))
+      .then(() => key);
+  });
 
   /**
    * @method saveKey
