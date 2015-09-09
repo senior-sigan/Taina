@@ -13,7 +13,7 @@
     "url": "https://github.com/blan4/Taina/issues"
   },
   "devDependencies": {
-    "electron-prebuilt": "^0.30.4",
+    "electron-prebuilt": "^0.32.1",
     "eslint-config-airbnb": "0.0.8",
     "eslint-plugin-react": "^3.3.0",
     "babel-eslint": "^4.1.0",
