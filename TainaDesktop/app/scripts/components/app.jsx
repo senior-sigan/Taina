@@ -1,6 +1,7 @@
 import React from 'react';
 import Router from 'react-router';
 import LoginCreator from './login.jsx';
+import InitializerCreator from './initializer.jsx';
 import DashboardCreator from './dashboard.jsx';
 const Route = Router.Route;
 const RouteHandler = Router.RouteHandler;
@@ -9,6 +10,7 @@ const DefaultRoute = Router.DefaultRoute;
 module.exports.create = (taina) => {
   const Login = LoginCreator.create(taina);
   const Dashboard = DashboardCreator.create(taina);
+  const Initializer = InitializerCreator.create(taina);
 
   class App extends React.Component {
     render() {
@@ -24,6 +26,7 @@ module.exports.create = (taina) => {
   const routes = (
     <Route handler={App}>
       <Route path="login" handler={Login}/>
+      <Route path="initialize" handler={Initializer}/>
       <Route path="dashboard" handler={Dashboard}/>
       <DefaultRoute handler={Login}/>
     </Route>

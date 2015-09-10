@@ -12,7 +12,7 @@ const BrowserWindow = remote.require('browser-window');
  * @param  {string} options.secret
  * @return {DropboxSync}
  */
-module.exports.create = function(options) {
+module.exports.create = (options) => {
   const dboxApp = dbox.app({'app_key': options.key, 'app_secret': options.secret});
   const DropboxSync = {
     name: 'Dropbox',
@@ -37,7 +37,7 @@ module.exports.create = function(options) {
     return DropboxSync.getToken().then(accessToken => dboxApp.client(accessToken));
   }
 
-  DropboxSync.getAccountInfo = function() {
+  DropboxSync.getAccountInfo = () => {
     return getClient().then(client => {
       return new PromiseA((resolve, reject) => {
         client.account((status, data) => {
@@ -54,7 +54,7 @@ module.exports.create = function(options) {
     });
   };
 
-  DropboxSync.saveData = function(_data) {
+  DropboxSync.saveData = (_data) => {
     const data = JSON.stringify(_data || EMPTY_DATA, null, ' ');
     return getClient().then(client => {
       return new PromiseA((resolve, reject) => {
@@ -75,14 +75,14 @@ module.exports.create = function(options) {
    * @param  {Object[]} data
    * @return {PromiseA}
    */
-  DropboxSync.bulkSave = function(data) {
+  DropboxSync.bulkSave = (data) => {
     return DropboxSync.saveData({
       data: data,
       lastSync: moment().toISOString(),
     });
   };
 
-  DropboxSync.loadData = function() {
+  DropboxSync.loadData = () => {
     return getClient().then(client => {
       return new PromiseA((resolve, reject) => {
         client.get(DATA_PATH, {}, (status, data, metadata) => {
@@ -105,7 +105,7 @@ module.exports.create = function(options) {
    * @description Load Dropbox access token from storage. Reject if not found
    * @return {PromiseA} accessToken
    */
-  DropboxSync.getToken = PromiseA.method(function() {
+  DropboxSync.getToken = PromiseA.method(() => {
     const accessToken = storage.getItem(DB_KEY);
     if (!accessToken) {
       throw new Error('Dropbox accessToken not found. Get new one.');
@@ -118,7 +118,7 @@ module.exports.create = function(options) {
    * @description Open new window and start dropbox authentication. Save accessToken in storage.
    * @return {PromiseA} dropbox accessToken
    */
-  DropboxSync.startAuth = function() {
+  DropboxSync.startAuth = () => {
     let authWindow = new BrowserWindow(browserConfig);
     authWindow.on('close', () => {
       authWindow = null;

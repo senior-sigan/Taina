@@ -40,5 +40,9 @@ module.exports.create = (cryptoAdapter) => {
     });
   };
 
+  SaltRepository.isEmpty = () => {
+    return !storage.getItem(SALT_KEY);
+  };
+
   return SaltRepository;
 };

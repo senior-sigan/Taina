@@ -95,6 +95,10 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
       .then(() => key);
   });
 
+  MasterKeyRepository.isEmpty = () => {
+    return !standardStorage.getItem(STANDARD_KEY);
+  };
+
   /**
    * @method saveKey
    * @description generate key and save in secure storage
