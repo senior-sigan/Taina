@@ -9,7 +9,7 @@ module.exports.create = (taina) => {
       e.preventDefault();
       const masterKey = React.findDOMNode(this.refs.masterKey);
       taina.login(masterKey.value.trim()).then(() => {
-        console.log('logged in');
+        console.log('Created new Taina');
         masterKey.value = null;
         this.transitionTo('/dashboard');
       }).catch(err => {
@@ -18,14 +18,17 @@ module.exports.create = (taina) => {
     },
 
     render() {
-      if (taina.isEmpty()) {
-        this.transitionTo('/initialize');
+      if (!taina.isEmpty()) {
+        this.transitionTo('/login');
       }
       return (
-        <form onSubmit={this.handleSubmit}>
-          <input type="password" ref="masterKey" />
-          <input type="submit" value="Login" />
-        </form>
+        <div>
+          <form onSubmit={this.handleSubmit}>
+            <input type="password" ref="masterKey" />
+            <input type="submit" value="Create Taina" />
+          </form>
+          <a>Load data from dropbox</a>
+        </div>
       );
     },
   });
