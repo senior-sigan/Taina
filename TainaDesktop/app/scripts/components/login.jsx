@@ -23,7 +23,10 @@ module.exports.create = (taina) => {
       }
       return (
         <form onSubmit={this.handleSubmit}>
-          <input type="password" ref="masterKey" />
+          <div className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input className="mdl-textfield__input" type="password" ref="masterKey" id="password" />
+            <label className="mdl-textfield__label" htmlFor="password">Password</label>
+          </div>
           <input type="submit" value="Login" />
         </form>
       );
