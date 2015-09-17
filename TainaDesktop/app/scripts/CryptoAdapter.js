@@ -1,6 +1,6 @@
-import Promise from 'bluebird';
+import PromiseA from 'bluebird';
 import Crypto from 'crypto';
-const CryptoAsync = Promise.promisifyAll(Crypto);
+const CryptoAsync = PromiseA.promisifyAll(Crypto);
 
 /**
  * Adapter over nodejs Crypto service.
@@ -73,7 +73,7 @@ module.exports.create = () => {
     const decipher = CryptoAsync.createDecipheriv(ENCRYPTION_ALGORITHM, bKey, bIv);
     const dec = decipher.update(data, 'hex', 'utf8') + decipher.final('utf8');
 
-    return Promise.resolve(dec);
+    return PromiseA.resolve(dec);
   };
 
   return CryptoAdapter;

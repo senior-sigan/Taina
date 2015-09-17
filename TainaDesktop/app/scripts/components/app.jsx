@@ -15,7 +15,7 @@ module.exports.create = (taina) => {
   class App extends React.Component {
     render() {
       return (
-        <div>
+        <div className="container">
           <h1>App</h1>
           <RouteHandler/>
         </div>
