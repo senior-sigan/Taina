@@ -44,6 +44,9 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
 
     return key;
   });
+
+  MasterKeyRepository.isSet = () => !!storage.getItem(MASTER_KEY_KEY);
+
   /**
    * @method generateKey
    * @description generate master key from password with random generated or founded in storage salt
@@ -116,6 +119,16 @@ module.exports.create = (saltRepository, cryptoAdapter) => {
         return key;
       });
   };
+
+  MasterKeyRepository.removeKey = PromiseA.method(() => {
+    return storage.removeItem(MASTER_KEY_KEY);
+  });
+
+  MasterKeyRepository.clear = PromiseA.method(() => {
+    logger.info('MasterKeyRepository has been cleared');
+    standardStorage.removeItem(STANDARD_KEY);
+    storage.removeItem(MASTER_KEY_KEY);
+  });
 
   return MasterKeyRepository;
 };

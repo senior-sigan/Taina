@@ -1,4 +1,5 @@
 import PromiseA from 'bluebird';
+import logger from 'winston';
 
 /**
  * @module SaltRepository
@@ -43,6 +44,11 @@ module.exports.create = (cryptoAdapter) => {
   SaltRepository.isEmpty = () => {
     return !storage.getItem(SALT_KEY);
   };
+
+  SaltRepository.clear = PromiseA.method(() => {
+    logger.info('SaltRepository has been cleared');
+    storage.removeItem(SALT_KEY);
+  });
 
   return SaltRepository;
 };

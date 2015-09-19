@@ -1,5 +1,6 @@
 import React from 'react';
 import Router from 'react-router';
+import logger from 'winston';
 
 module.exports.create = (taina) => {
   const Login = React.createClass({
@@ -9,11 +10,11 @@ module.exports.create = (taina) => {
       e.preventDefault();
       const masterKey = React.findDOMNode(this.refs.masterKey);
       taina.login(masterKey.value.trim()).then(() => {
-        console.log('Created new Taina');
+        logger.info('Created new Taina');
         masterKey.value = null;
         this.transitionTo('/dashboard');
       }).catch(err => {
-        console.log(err);
+        logger.error(err);
       });
     },
 
@@ -22,13 +23,13 @@ module.exports.create = (taina) => {
         this.transitionTo('/login');
       }
       return (
-        <div>
-          <form onSubmit={this.handleSubmit}>
-            <input type="password" ref="masterKey" />
-            <input type="submit" value="Create Taina" />
-          </form>
-          <a>Load data from dropbox</a>
-        </div>
+        <form onSubmit={this.handleSubmit}>
+          <div className="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input className="mdl-textfield__input" type="password" ref="masterKey" id="password" />
+            <label className="mdl-textfield__label" htmlFor="password">Password</label>
+          </div>
+          <input type="submit" value="Login" />
+        </form>
       );
     },
   });
