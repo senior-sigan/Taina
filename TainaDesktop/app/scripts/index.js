@@ -27,24 +27,26 @@ window.taina = taina;
 require('./components/app.jsx').create(taina);
 
 // TEST
-let key = null;
-winston.info('>>> START TEST');
-masterKeyRepository.getKey().then(_key => {
-  winston.info('Key loaded', _key);
-  return _key;
-}).catch(() => {
-  winston.info('Creating new key');
-  return masterKeyRepository.saveKey('qwerty').then(_key => {
-    winston.info('New key created', _key);
+function test () {
+  let key = null;
+  winston.info('>>> START TEST');
+  masterKeyRepository.getKey().then(_key => {
+    winston.info('Key loaded', _key);
     return _key;
+  }).catch(() => {
+    winston.info('Creating new key');
+    return masterKeyRepository.saveKey('qwerty').then(_key => {
+      winston.info('New key created', _key);
+      return _key;
+    });
+  }).then(_key => {
+    key = _key;
+    return cryptoAdapter.encrypt('Hello World!!', key);
+  }).then(dataWithIV => {
+    winston.info(dataWithIV);
+    return cryptoAdapter.decrypt(dataWithIV.data, dataWithIV.iv, key);
+  }).then(openText => {
+    winston.info(openText);
+    winston.info('<<< TEST COMPLETE');
   });
-}).then(_key => {
-  key = _key;
-  return cryptoAdapter.encrypt('Hello World!!', key);
-}).then(dataWithIV => {
-  winston.info(dataWithIV);
-  return cryptoAdapter.decrypt(dataWithIV.data, dataWithIV.iv, key);
-}).then(openText => {
-  winston.info(openText);
-  winston.info('<<< TEST COMPLETE');
-});
+}

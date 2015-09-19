@@ -1,5 +1,6 @@
 import React from 'react';
 import Router from 'react-router';
+import logger from 'winston';
 
 module.exports.create = (taina) => {
   const Login = React.createClass({
@@ -9,11 +10,10 @@ module.exports.create = (taina) => {
       e.preventDefault();
       const masterKey = React.findDOMNode(this.refs.masterKey);
       taina.login(masterKey.value.trim()).then(() => {
-        console.log('logged in');
         masterKey.value = null;
         this.transitionTo('/dashboard');
       }).catch(err => {
-        console.log(err);
+        logger.error(err);
       });
     },
 

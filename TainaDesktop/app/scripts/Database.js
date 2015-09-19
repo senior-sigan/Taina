@@ -1,6 +1,7 @@
 import logger from 'winston';
 import PromiseA from 'bluebird';
 import Random from './helpers/Random';
+import moment from 'moment';
 
 /**
  * create Database object
@@ -65,6 +66,8 @@ module.exports.create = () => {
       data: {
         title: note.title,
         body: note.body,
+        createdAt: moment().toISOString(),
+        updatedAt: moment().toISOString(),
       },
     }).then(result => {
       logger.debug(JSON.stringify(result, null, ' '));
@@ -113,6 +116,8 @@ module.exports.create = () => {
         data: {
           title: note.title || doc.title,
           body: note.body || doc.body,
+          createdAt: doc.createdAt,
+          updatedAt: moment().toISOString(),
         },
       };
 
